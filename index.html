@@ -1457,8 +1457,6 @@ function gameHTML(){
   const canDraw=isMine()&&S.phase==='play'&&S.cur===v;
   const ek=E.ekInDeck(S);
   const shake=Date.now()-ui.shake<700;
-  const chips=[`<span class="chip">${ek} Exploding Wombat${ek===1?'':'s'} in de stapel</span>`];
-  if(S.turns>1) chips.push(`<span class="chip hot">${esc(who(S.cur,true))}: nog ${S.turns} beurten</span>`);
   const lg=S.log.slice(-2).map(l=>`<li>${esc(logText(l,v))}</li>`).join('');
   const giving=S.phase==='favor'&&isMine();
   let hand='';
@@ -1473,7 +1471,6 @@ function gameHTML(){
     <button class="pile${canDraw?' can':''}${shake?' shake':''}" data-act="draw" ${canDraw?'':'disabled'} aria-label="Trekstapel, ${S.deck.length} kaarten${canDraw?'. Tik om een kaart te trekken':''}">${backHTML(0.36)}<span class="lbl">Trekstapel · ${S.deck.length}</span></button>
     <button class="pile" data-act="show" ${top?`data-c="${top}"`:'disabled'} aria-label="Aflegstapel${top?': '+esc(TY[tOf(top)].title):''}">${top?cardHTML(tOf(top),0.36):'<div class="empty-pile"></div>'}<span class="lbl">Aflegstapel</span></button>
   </section>
-  <div class="chips">${chips.join('')}</div>
   ${hand}`;
 }
 function overHTML(){
