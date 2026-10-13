@@ -29,7 +29,7 @@ SOORTEN = ['ek', 'defuse', 'attack', 'skip', 'shuffle', 'future', 'favor', 'nope
 # Uitsnede van het wombatkopje per tekening (in pixels van een tekening van 1536 x 1024)
 GEZICHTEN = {
     'skip': (680, 30, 1080, 430), 'future': (640, 90, 1040, 490), 'beard': (620, 60, 1100, 540),
-    'melon': (620, 40, 1080, 500), 'nope': (590, 70, 990, 470), 'taco': (640, 20, 1040, 420),
+    'melon': (620, 40, 1080, 500), 'nope': (555, 115, 985, 545), 'taco': (640, 20, 1040, 420),
 }
 
 
