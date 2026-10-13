@@ -2,6 +2,8 @@
 
 Een kaartspel voor twee tot vijf spelers, met de regels van het basisspel van Exploding Kittens, maar dan met wombats. Trek kaarten, speel slim en ontwijk de Exploding Wombats. Wie er een trekt zonder Ontmantel, ontploft. Wie als laatste overblijft, wint.
 
+Lang niet gespeeld? Op het startscherm en onder het vraagteken staat een uitleg in tien stappen, met de kaarten erbij. Bij de eerste keer openen verschijnt die vanzelf.
+
 Speel tegen de computer, met vrienden op één telefoon (je geeft hem tussen de beurten door) of online, waarbij iedereen op zijn eigen telefoon speelt.
 
 De app is een PWA: je zet hem op het beginscherm van je telefoon, en na het eerste bezoek werkt hij ook offline.

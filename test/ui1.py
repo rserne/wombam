@@ -9,7 +9,7 @@ async def main():
         errs=[]
         pg.on('console',lambda m: errs.append(m.text) if m.type=='error' else None)
         pg.on('pageerror',lambda e: errs.append(str(e)))
-        await pg.goto(URL); await pg.wait_for_timeout(800)
+        await pg.goto(URL); await pg.wait_for_timeout(800); await pg.click('[data-act=tour-close]')
         await pg.screenshot(path='test/schermen/01-start.png')
         await pg.click('[data-act=start]'); await pg.wait_for_timeout(900)
         await pg.screenshot(path='test/schermen/02-spel.png')

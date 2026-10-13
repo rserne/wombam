@@ -31,7 +31,7 @@ async def main():
         ctx=await b.new_context(viewport={'width':390,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True)
         A=await ctx.new_page(); B=await ctx.new_page(); errs=[]
         for pg,t in ((A,'A'),(B,'B')): pg.on('pageerror',lambda e,t=t: errs.append(t+': '+str(e)))
-        await A.goto(URL); await A.wait_for_timeout(500)
+        await A.goto(URL); await A.wait_for_timeout(400); await A.click('[data-act=tour-close]'); await A.wait_for_timeout(500)
         await A.click('[data-act=mode][data-m=online]'); await A.fill('#on-name','Rob'); await A.click('[data-act=create]')
         await A.wait_for_selector('.code-letters'); code=(await A.get_attribute('.code-letters','aria-label')).replace('Code ','').replace(' ','')
         await A.click('[data-act=add-ai]'); await A.wait_for_timeout(300)

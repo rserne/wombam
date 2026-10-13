@@ -195,6 +195,34 @@ button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid
 .handoff p{margin:0;color:var(--muted);max-width:30ch}
 .handoff .btn{flex:none;min-width:240px}
 
+.sheet.rulesheet p{color:var(--muted);text-align:left}
+.sheet.rulesheet .rules-body{padding-bottom:0}
+/* rondleiding */
+.tour{position:relative;gap:14px}
+.tour .skip{position:absolute;right:0;top:-6px;background:none;border:0;color:#E6D3B6;font-weight:800;font-size:14px;padding:10px 4px;text-decoration:underline;text-underline-offset:3px}
+.tour .step{font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#FFD23F;margin:0;align-self:flex-start}
+.tour .vis{height:196px;width:100%;display:flex;align-items:center;justify-content:center;animation:tin .35s cubic-bezier(.2,.9,.3,1.2) both}
+.tour .vis .cbox{margin:0 -12px}
+.tour .vis.n2 .cbox{margin:0 2px}
+.tour .vis.n2 .cbox:nth-child(1){transform:rotate(-7deg) translateY(6px)}
+.tour .vis.n2 .cbox:nth-child(2){transform:rotate(7deg) translateY(6px)}
+.tour .vis.n3 .cbox:nth-child(1){transform:rotate(-10deg) translateY(10px)}
+.tour .vis.n3 .cbox:nth-child(3){transform:rotate(10deg) translateY(10px)}
+.tour .vis.n3 .cbox:nth-child(2){z-index:1}
+.tour .vis .hrow{transform:scale(1.25)}
+.tour .vis .arrow{font-family:var(--f-display);font-size:34px;color:#FFD23F;margin:0 18px;z-index:2}
+.tour h2{font-size:28px}
+.tour p.txt{min-height:7.2em;font-size:16px;line-height:1.5;color:#F6E8D2;text-wrap:pretty}
+.tour p.txt b{color:#FFD23F}
+.tdots{display:flex;gap:6px;justify-content:center}
+.tdots i{width:8px;height:8px;border-radius:99px;background:rgba(246,232,210,.3);transition:width .2s,background .2s}
+.tdots i.on{width:24px;background:#FFD23F}
+.tnav{display:flex;gap:10px;width:100%}
+.tnav .btn{flex:1 1 0;min-width:0}
+@keyframes tin{from{opacity:0;transform:translateX(24px)}}
+.tourbtn{flex:none;align-self:flex-start;min-height:48px;display:inline-flex;align-items:center;gap:10px;font-size:16px}
+.tourbtn svg{width:20px;height:20px}
+
 /* effecten */
 .boom{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:radial-gradient(circle at 50% 45%,#FFD23F 0,#F0761A 30%,#C9261A 62%,#3A0C06 100%);animation:boom .6s ease-out both,shakeall .5s .05s both;color:#fff;text-align:center;padding:24px}
 .boom b{font-family:var(--f-display);font-weight:400;font-size:88px;line-height:1;color:#FFD23F;text-shadow:0 5px 0 #1E120B,4px 0 0 #1E120B,-4px 0 0 #1E120B,0 -4px 0 #1E120B}
@@ -813,6 +841,7 @@ function fx(ev){
 function syncReact(){ if(S&&S.phase==='react'&&S.pending&&ui.reactK!==S.pending.k){ ui.reactK=S.pending.k; ui.reactAt=Date.now(); } }
 function schedule(){
   syncReact();
+  if(!ON&&(ui.tour!=null||(ui.sheet&&ui.sheet.k==='rules'))){ clearTimeout(aiTimer); clearTimeout(reactTimer); clearTimeout(nopeTimer); return; }
   clearTimeout(aiTimer); clearTimeout(reactTimer); clearTimeout(nopeTimer); clearTimeout(stallTimer);
   if(!S||S.phase==='over') return;
   const sp=pref.fast?0.45:1, runAI=!ON||ON.isHost;
@@ -1278,6 +1307,7 @@ function setupHTML(){
     <div class="heroart" aria-hidden="true">${cardHTML('defuse',0.36)}${cardHTML('ek',0.42)}${cardHTML('nope',0.36)}</div>
     <h2>Trek een kaart en hoop dat hij <em>niet ontploft.</em></h2>
     <p class="lede">Een kaartspel voor 2 tot 5 spelers. Speel slim, ontwijk de Exploding Wombats en blijf als laatste over.</p>
+    <button class="btn soft tourbtn" data-act="tour">${ICON.help}Hoe werkt het? Uitleg in 1 minuut</button>
   </section>
   ${tabs}${body}`;
 }
@@ -1362,13 +1392,46 @@ function handoffHTML(){
     <button class="btn go" data-act="iam" data-i="${w}">Ik ben ${esc(p.name)}</button></div>`;
 }
 
+/* ---------- rondleiding: de spelregels in tien stappen ---------- */
+const TOUR=[
+  {v:['ek'],t:'Blijf als laatste over',p:'In de stapel zitten <b>Exploding Wombats</b>. Trek je er een en kun je hem niet onschadelijk maken, dan ontplof je en lig je uit het spel. Wie als laatste overblijft, wint.'},
+  {v:['back','defuse'],t:'Zo begint het',p:'Iedereen krijgt 7 kaarten en 1 <b>Ontmantel</b>. In de trekstapel zitten Exploding Wombats: één minder dan er spelers zijn. Zo blijft er uiteindelijk precies één speler over.'},
+  {v:['back'],t:'Jouw beurt',p:'Speel zoveel kaarten als je wilt, of helemaal geen. Daarna <b>trek je één kaart</b>. Daarmee is je beurt voorbij. Hoe minder je trekt, hoe kleiner de kans dat je ontploft.'},
+  {v:['ek','>','defuse'],t:'Ontmantel',p:'Trek je een Exploding Wombat en heb je een Ontmantel? Die gebruikt het spel vanzelf. Daarna stop je de wombat <b>in het geheim</b> terug in de stapel, waar je maar wilt: bovenop voor de volgende speler, of diep weg.'},
+  {v:['skip','attack'],t:'Ontsnappen',p:'<b>Sla Over:</b> je beurt is voorbij zonder dat je trekt. <b>Aanval:</b> je trekt ook niet, en de volgende moet 2 beurten achter elkaar spelen. Word je zelf aangevallen, dan kun je terugslaan: de volgende krijgt jouw beurten plus 2.'},
+  {v:['future','shuffle'],t:'Vooruitkijken',p:'Met <b>Voorspel de Toekomst</b> zie je in het geheim de bovenste 3 kaarten. Ligt er een Exploding Wombat bovenop? Ontsnap, of speel <b>Schud</b> om de stapel door elkaar te gooien.'},
+  {v:['favor'],t:'Kateautje',p:'Kies een speler. Die moet je <b>één kaart geven</b>, maar mag zelf kiezen welke.'},
+  {v:['nope'],t:'Nope!',p:'Na elke actie loopt er <b>4 seconden</b> een balk. Zolang mag iedereen Nope spelen, ook buiten zijn beurt. De actie gaat dan niet door. Een Nope houd je weer tegen met een Nope. Alleen Exploding Wombat en Ontmantel kun je niet tegenhouden.'},
+  {v:['taco','taco','melon'],t:'Combinaties',p:'Combinatiekaarten doen op zichzelf niets. <b>Twee dezelfde:</b> steel blind een kaart van een andere speler. <b>Drie dezelfde:</b> noem een kaart; heeft de ander die, dan moet hij hem afgeven. Dit werkt met elke kaart, ook met actiekaarten.'},
+  {v:'hand',t:'Zo speel je in de app',p:'Tik op een kaart in je hand om hem groot te zien en te spelen. <b>Gelijke kaarten liggen naast elkaar</b>, zodat je combinaties meteen ziet. Tik op de trekstapel om te trekken. Deze uitleg vind je altijd terug onder het vraagteken.'}
+];
+function tourHTML(){
+  const i=Math.max(0,Math.min(TOUR.length-1,ui.tour)), s=TOUR[i], last=i===TOUR.length-1;
+  let vis;
+  if(s.v==='hand') vis=`<div class="vis"><div class="hrow">${['defuse','attack','nope','taco','taco'].map((t,j)=>`<div style="margin-right:${j===4?0:-26}px">${typeMini(t)}</div>`).join('')}</div></div>`;
+  else{
+    const cards=s.v.filter(x=>x!=='>'), sc=cards.length===1?0.54:cards.length===2?0.46:0.4;
+    vis=`<div class="vis n${s.v.length}">${s.v.map(x=>x==='>'?'<span class="arrow" aria-hidden="true">→</span>':x==='back'?backHTML(sc):cardHTML(x,sc)).join('')}</div>`;
+  }
+  return `<div class="ov" data-act="tour-bg" role="dialog" aria-label="Uitleg: ${esc(s.t)}"><div class="sheet tour" data-tour>
+    <p class="step">Uitleg · ${i+1} van ${TOUR.length}</p>
+    ${last?'':`<button class="skip" data-act="tour-close">Overslaan</button>`}
+    ${vis}
+    <h2>${s.t}</h2>
+    <p class="txt">${s.p}</p>
+    <div class="tdots" aria-hidden="true">${TOUR.map((_,j)=>`<i class="${j===i?'on':''}"></i>`).join('')}</div>
+    <div class="tnav">${i>0?`<button class="btn soft" data-act="tour-prev">Vorige</button>`:''}${last?`<button class="btn go" data-act="tour-close">${S?'Verder spelen':'Aan de slag'}</button>`:`<button class="btn" data-act="tour-next">Volgende</button>`}</div>
+    ${last?`<button class="btn soft" data-act="rules-all" style="width:100%;flex:none">Alle regels op een rij</button>`:''}
+  </div></div>`;
+}
+const rulesSheetHTML=()=>`<div class="ov" data-act="close-bg" role="dialog" aria-label="Spelregels"><div class="sheet rulesheet" style="background:var(--surface);color:var(--ink);border-radius:24px;padding:20px;align-items:stretch"><h2>Spelregels</h2>${rulesBody()}<div class="acts"><button class="btn soft" data-act="tour" style="color:var(--ink);border-color:var(--line)">Uitleg stap voor stap</button><button class="btn" data-act="close">Sluiten</button></div></div></div>`;
+
 /* ---------- vensters ---------- */
 function sheetHTML(){
   const sh=ui.sheet; if(!sh||!S) return '';
   const v=me(), P=S.players[v]||null;
   const back=`<button class="btn soft" data-act="close">Terug</button>`;
   if(sh.k==='show') return `<div class="ov" data-act="close-bg" role="dialog" aria-label="${esc(TY[sh.t].title)}"><div class="sheet">${cardHTML(sh.t,1.16)}<div class="acts">${back}</div></div></div>`;
-  if(sh.k==='rules') return `<div class="ov" data-act="close-bg" role="dialog" aria-label="Spelregels"><div class="sheet" style="background:var(--surface);color:var(--ink);border-radius:24px;padding:20px;align-items:stretch"><h2>Spelregels</h2>${rulesBody()}<div class="acts"><button class="btn" data-act="close">Sluiten</button></div></div></div>`;
   if(sh.k==='see') return `<div class="ov" role="dialog" aria-label="Voorspel de Toekomst"><div class="sheet"><h2>Bovenop de stapel</h2><p>Alleen jij ziet dit. Kaart 1 trek je als eerste.</p>
     <div class="three">${sh.cards.map((c,i)=>`<figure>${cardHTML(tOf(c),0.36)}<figcaption>${i===0?'1 · bovenop':i+1}</figcaption></figure>`).join('')}</div>
     <div class="acts"><button class="btn" data-act="close">Gezien</button></div></div></div>`;
@@ -1555,10 +1618,10 @@ function render(){
   const ae=document.activeElement, focusId=ae&&ae.id, sel=ae&&typeof ae.selectionStart==='number'?ae.selectionStart:null;
   syncReact();
   const scr=screen();
-  if(scr==='game'||scr==='over'||scr==='handoff'){ checkSheet(); pumpInbox(); } else if(scr!=='handoff') ui.sheet=null;
+  if(scr==='game'||scr==='over'||scr==='handoff'){ checkSheet(); pumpInbox(); } else if(scr!=='handoff'&&!(ui.sheet&&ui.sheet.k==='rules')) ui.sheet=null;
   app.innerHTML=scr==='setup'?setupHTML():scr==='connecting'?connectingHTML():scr==='lobby'?lobbyHTML():scr==='over'?overHTML():scr==='handoff'?handoffHTML():gameHTML();
   const dh=dockHTML(scr); dock.innerHTML=dh; dock.hidden=!dh;
-  layer.innerHTML=(scr==='game'||scr==='over')?sheetHTML():'';
+  layer.innerHTML=ui.tour!=null?tourHTML():(ui.sheet&&ui.sheet.k==='rules')?rulesSheetHTML():(scr==='game'||scr==='over')?sheetHTML():'';
   fxEl.innerHTML=fxHTML();
   clearTimeout(fxTimer);
   const pend=[ui.boom&&ui.boom.until-Date.now(),1300-(Date.now()-ui.stamp),700-(Date.now()-ui.shake)].filter(x=>x>0);
@@ -1585,7 +1648,7 @@ function cardsOfType(v,t,n){ return S.players[v].hand.filter(c=>tOf(c)===t).slic
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]'); if(!b||b.disabled) return;
   const a=b.dataset.act, v=me();
-  if(a==='close-bg'&&e.target!==b) return;     // alleen een tik naast het venster sluit het
+  if((a==='close-bg'||a==='tour-bg')&&e.target!==b) return;     // alleen een tik naast het venster sluit het
   switch(a){
     case 'seat': seats[+b.dataset.i].type=b.dataset.type; ui.err=''; save(); render(); break;
     case 'mode': ui.mode=b.dataset.m; pref.mode=ui.mode; ui.netErr=''; save(); render(); if(ui.mode==='online') warmUp(); break;
@@ -1598,8 +1661,13 @@ document.addEventListener('click',e=>{
       ui.sheet={k:'card',c}; render(); break;
     }
     case 'show': if(b.dataset.c){ ui.sheet={k:'show',t:tOf(b.dataset.c)}; render(); } break;
-    case 'close': case 'close-bg': ui.sheet=null; render(); break;
-    case 'help': ui.sheet={k:'rules'}; render(); break;
+    case 'close': case 'close-bg': ui.sheet=null; render(); schedule(); break;
+    case 'help': ui.tour=0; render(); schedule(); break;
+    case 'tour': ui.sheet=null; ui.tour=0; render(); schedule(); break;
+    case 'tour-next': ui.tour=Math.min(TOUR.length-1,ui.tour+1); render(); break;
+    case 'tour-prev': ui.tour=Math.max(0,ui.tour-1); render(); break;
+    case 'tour-close': case 'tour-bg': endTour(); break;
+    case 'rules-all': endTour(true); ui.sheet={k:'rules'}; render(); schedule(); break;
     case 'play-one': if(ui.sheet&&ui.sheet.k==='card'){ const c=ui.sheet.c; ui.sheet=null; act('play',v,[c]); render(); } break;
     case 'pick-target':{
       if(!ui.sheet||ui.sheet.k!=='card') break;
@@ -1675,8 +1743,25 @@ document.addEventListener('input',e=>{
 });
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&e.target&&e.target.id==='on-code'){ e.preventDefault(); joinOnline(); }
-  if(e.key==='Escape'&&ui.sheet&&ui.sheet.k!=='place'){ ui.sheet=null; render(); }
+  if(ui.tour!=null){
+    if(e.key==='ArrowRight'&&ui.tour<TOUR.length-1){ ui.tour++; render(); }
+    else if(e.key==='ArrowLeft'&&ui.tour>0){ ui.tour--; render(); }
+    else if(e.key==='Escape') endTour();
+    return;
+  }
+  if(e.key==='Escape'&&ui.sheet&&ui.sheet.k!=='place'){ ui.sheet=null; render(); schedule(); }
 });
+function endTour(silent){ ui.tour=null; if(!pref.toured){ pref.toured=true; save(); } if(!silent){ render(); schedule(); } }
+// vegen in de uitleg
+let swX=null, swY=0;
+document.addEventListener('touchstart',e=>{ if(ui.tour!=null&&e.touches.length===1){ swX=e.touches[0].clientX; swY=e.touches[0].clientY; } },{passive:true});
+document.addEventListener('touchend',e=>{
+  if(swX==null||ui.tour==null) return;
+  const t=e.changedTouches[0], dx=t.clientX-swX, dy=t.clientY-swY; swX=null;
+  if(Math.abs(dx)<50||Math.abs(dy)>Math.abs(dx)) return;
+  if(dx<0&&ui.tour<TOUR.length-1) ui.tour++; else if(dx>0&&ui.tour>0) ui.tour--; else return;
+  render();
+},{passive:true});
 window.addEventListener('resize',()=>{ clearTimeout(window.__wbRz); window.__wbRz=setTimeout(render,150); });
 
 function warmUp(){ if(netReady()) getNet().catch(()=>{}); }   // Firebase alvast laden en inloggen
@@ -1696,6 +1781,7 @@ function boot(d){
   }
   markAllSeen();
   ui.mode=pref.mode==='online'?'online':'local';
+  if(!pref.toured&&!S) ui.tour=0;
   const h=(location.hash||'').match(/^#([A-Za-z]{4})$/);
   if(h){ ui.mode='online'; ui.joinCode=h[1].toUpperCase(); try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){} }
   if(!h&&pref.online&&pref.online.code&&netReady()) enterOnline(pref.online.code);
