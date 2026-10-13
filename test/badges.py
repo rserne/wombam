@@ -10,7 +10,7 @@ async def main():
         await pg.reload(); await pg.wait_for_timeout(900)
         print('hc:',await pg.locator('.hc').count(),'fouten',errs)
         await pg.screenshot(path='test/schermen/73-hand-badges.png')
-        await pg.locator('.hc').nth(5).evaluate('e=>e.click()'); await pg.wait_for_timeout(300)
+        await pg.locator('.hc').nth(1).evaluate('e=>e.click()'); await pg.wait_for_timeout(300)
         await pg.screenshot(path='test/schermen/74-kaart-badge.png')
         await b.close()
 asyncio.run(main())

@@ -202,6 +202,8 @@ button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid
 .sheet.rulesheet p{color:var(--muted);text-align:left}
 .sheet.rulesheet .rules-body{padding-bottom:0}
 /* bladeren door je hand */
+.xclose{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);right:14px;z-index:42;width:44px;height:44px;border-radius:50%;border:2px solid #F6E8D2;background:rgba(20,12,8,.5);color:#F6E8D2;display:grid;place-items:center;padding:0}
+.xclose svg{width:22px;height:22px}
 .sheet p.alt{font-size:14px;line-height:1.4;color:#BFA88C;margin:6px 0 -2px;text-align:left}
 .flip{display:flex;align-items:center;justify-content:center;gap:14px;width:100%}
 .flip .nav{width:44px;height:44px;flex:none;border-radius:50%;border:2px solid #F6E8D2;background:transparent;color:#F6E8D2;display:grid;place-items:center}
@@ -1457,8 +1459,8 @@ function flipCard(dir){
 function sheetHTML(){
   const sh=ui.sheet; if(!sh||!S) return '';
   const v=me(), P=S.players[v]||null;
-  const back=`<button class="btn soft" data-act="close">Terug</button>`;
-  if(sh.k==='show') return `<div class="ov" data-act="close-bg" role="dialog" aria-label="${esc(TY[sh.t].title)}"><div class="sheet">${cardHTML(sh.t,1.16)}<div class="acts">${back}</div></div></div>`;
+  const back='', X=`<button class="xclose" data-act="close" aria-label="Sluiten">${ICON.close}</button>`;
+  if(sh.k==='show') return `<div class="ov" data-act="close-bg" role="dialog" aria-label="${esc(TY[sh.t].title)}">${X}<div class="sheet">${cardHTML(sh.t,1.16)}</div></div>`;
   if(sh.k==='see') return `<div class="ov" role="dialog" aria-label="Voorspel de Toekomst"><div class="sheet"><h2>Bovenop de stapel</h2><p>Alleen jij ziet dit. Kaart 1 trek je als eerste.</p>
     <div class="three">${sh.cards.map((c,i)=>`<figure>${cardHTML(tOf(c),0.36)}<figcaption>${i===0?'1 · bovenop':i+1}</figcaption></figure>`).join('')}</div>
     <div class="acts"><button class="btn" data-act="close">Gezien</button></div></div></div>`;
@@ -1477,7 +1479,6 @@ function sheetHTML(){
         if(n>=3&&tg) acts.push(`<button class="btn soft" data-act="pick-target" data-mode="triple">Speel 3: eis een kaart op</button>`);
       } else if(n>=2&&tg){
         // ook actiekaarten mag je als paar of drietal spelen, maar dan vervalt hun gewone werking
-        acts.push(`<p class="alt">Je hebt er ${n}. Je mag ze ook samen spelen, net als combinatiekaarten. ${esc(TY[t].title)} doet dan niets: met 2 steel je blind een kaart${n>=3?', met 3 eis je een kaart op':''}.</p>`);
         acts.push(`<button class="btn soft" data-act="pick-target" data-mode="pair">Speel 2 samen: steel een kaart</button>`);
         if(n>=3) acts.push(`<button class="btn soft" data-act="pick-target" data-mode="triple">Speel 3 samen: eis een kaart op</button>`);
       }
@@ -1498,19 +1499,19 @@ function sheetHTML(){
       <div class="where"><span>${i+1} van ${list.length}</span><div class="tdots" aria-hidden="true">${list.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')}</div></div>
       <button class="nav" data-act="flip" data-d="1" ${i<list.length-1?'':'disabled'} aria-label="Volgende kaart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
     </div>`:'';
-    return `<div class="ov" data-act="close-bg" role="dialog" aria-label="${esc(TY[t].title)}"><div class="sheet" data-flip><div class="${sl}">${cardHTML(t,1.16,n)}</div>${nav}${hint?`<p>${hint}</p>`:''}<div class="acts">${acts.join('')}${back}</div></div></div>`;
+    return `<div class="ov" data-act="close-bg" role="dialog" aria-label="${esc(TY[t].title)}">${X}<div class="sheet" data-flip><div class="${sl}">${cardHTML(t,1.16,n)}</div>${nav}${hint?`<p>${hint}</p>`:''}${acts.length?`<div class="acts">${acts.join('')}</div>`:''}</div></div>`;
   }
   if(sh.k==='target'){
     const title=sh.mode==='favor'?'Wie geeft jou een kaart?':sh.mode==='pair'?'Van wie steel je een kaart?':'Van wie eis je een kaart op?';
     const list=E.targets(S,v);
-    return `<div class="ov" data-act="close-bg" role="dialog" aria-label="${title}"><div class="sheet"><h2>${title}</h2>
-      <div class="opps">${list.map(i=>plHTML(i,{pick:true})).join('')}</div><div class="acts">${back}</div></div></div>`;
+    return `<div class="ov" data-act="close-bg" role="dialog" aria-label="${title}">${X}<div class="sheet"><h2>${title}</h2>
+      <div class="opps">${list.map(i=>plHTML(i,{pick:true})).join('')}</div></div></div>`;
   }
   if(sh.k==='name'){
     const types=E.ORDER.filter(t=>t!=='ek');
-    return `<div class="ov" data-act="close-bg" role="dialog" aria-label="Welke kaart eis je op?"><div class="sheet"><h2>Welke kaart eis je op?</h2><p>Heeft ${esc(S.players[sh.target].name)} hem, dan moet hij hem afgeven.</p>
+    return `<div class="ov" data-act="close-bg" role="dialog" aria-label="Welke kaart eis je op?">${X}<div class="sheet"><h2>Welke kaart eis je op?</h2><p>Heeft ${esc(S.players[sh.target].name)} hem, dan moet hij hem afgeven.</p>
       <div class="namegrid">${types.map(t=>`<button data-act="named" data-t="${t}">${typeMini(t)}<span>${esc(TY[t].title)}</span></button>`).join('')}</div>
-      <div class="acts">${back}</div></div></div>`;
+      </div></div>`;
   }
   if(sh.k==='place'){
     const max=S.deck.length, pos=Math.min(ui.pos,max);
