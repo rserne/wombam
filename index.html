@@ -60,7 +60,7 @@ body{font-family:var(--f-body);font-size:16px;line-height:1.45;font-weight:600;-
 button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
 input{touch-action:manipulation}
 button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
-.wrap{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:12px calc(190px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:18px}
+.wrap{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:12px calc(240px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:18px}
 
 /* kop */
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -118,7 +118,7 @@ button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid
 .pile .lbl{font-size:13px;font-weight:800;color:var(--muted)}
 .pile.can .cbox{animation:bob 1.6s ease-in-out infinite}
 .pile.shake .cbox{animation:shake .6s ease-in-out}
-.empty-pile{width:100px;height:140px;border-radius:12px;border:2px dashed var(--line)}
+.empty-pile{width:90px;height:126px;border-radius:12px;border:2px dashed var(--line)}
 @keyframes bob{50%{transform:translateY(-4px)}}
 @keyframes shake{20%{transform:rotate(-6deg)}40%{transform:rotate(5deg)}60%{transform:rotate(-4deg)}80%{transform:rotate(3deg)}}
 .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:-6px}
@@ -244,16 +244,26 @@ button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid
 .tourbtn{flex:none;align-self:flex-start;min-height:48px;display:inline-flex;align-items:center;gap:10px;font-size:16px}
 .tourbtn svg{width:20px;height:20px}
 
-/* uitgelichte zet van een medespeler */
-.spot{position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 208px);z-index:9;display:flex;justify-content:center;pointer-events:none;padding:0 16px}
-.spot-in{background:rgba(23,17,13,.9);color:#F6E8D2;border-radius:24px;padding:16px 18px 14px;display:flex;flex-direction:column;align-items:center;gap:6px;max-width:360px;box-shadow:0 18px 40px rgba(0,0,0,.35);animation:spotin .45s cubic-bezier(.2,.9,.3,1.25) both}
-.spot-cards{display:flex;justify-content:center;margin-bottom:6px}
-.spot.n2 .spot-cards .cbox{margin:0 -10px}.spot.n2 .spot-cards .cbox:first-child{transform:rotate(-6deg)}.spot.n2 .spot-cards .cbox:last-child{transform:rotate(6deg)}
-.spot.n3 .spot-cards .cbox{margin:0 -16px}.spot.n3 .spot-cards .cbox:first-child{transform:rotate(-9deg) translateY(6px)}.spot.n3 .spot-cards .cbox:last-child{transform:rotate(9deg) translateY(6px)}.spot.n3 .spot-cards .cbox:nth-child(2){z-index:1}
-.spot-t{margin:0;font-family:var(--f-display);font-size:22px;line-height:1.15;text-align:center;color:#FFD23F}
-.spot-s{margin:0;font-size:15px;font-weight:700;text-align:center;color:#F6E8D2}
-@keyframes spotin{from{opacity:0;transform:translateY(-30px) scale(.85)}}
-.pl .st .bub{font-style:normal;background:var(--ink);color:var(--bg);border-radius:8px;padding:1px 8px;display:inline-block;animation:spotin .3s both;max-width:110px;overflow:hidden;text-overflow:ellipsis}
+/* wat er gebeurt: kaartje in de balk onderin */
+.ev{flex:1 1 100%;display:flex;align-items:center;gap:12px;border-radius:18px;padding:10px 12px;background:color-mix(in srgb,var(--cc) 16%,var(--surface));box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--cc) 45%,transparent);animation:rise .4s cubic-bezier(.2,.9,.3,1.25) both}
+.ev-vis{display:flex;flex:none}
+.ev .mc{width:50px;height:70px;border-width:2.5px;padding:2px;box-shadow:none}
+.ev .mc .sp{width:14px;left:2px;top:2px;bottom:2px;border-right-width:1.5px}
+.ev .mc .sp b{font-size:9px}
+.ev.n2 .mc+.mc,.ev.n3 .mc+.mc{margin-left:-30px}
+.ev .mback{width:50px;height:70px;border-radius:9px;border:2.5px solid #1E120B;background:#D63B1F url(img/back.svg) center/cover;display:grid;place-items:center}
+.ev .mback img{width:28px;height:28px;border-radius:50%;border:2px solid #1E120B}
+.ev-t{min-width:0}
+.ev-t .t{margin:0;font-family:var(--f-display);font-size:19px;line-height:1.15;color:var(--ink)}
+.ev-t .s{margin:3px 0 0;font-size:14px;font-weight:700;line-height:1.3;color:var(--muted)}
+.ev.compact{padding:6px 10px;gap:10px}
+.ev.compact .mc,.ev.compact .mback{width:34px;height:48px}
+.ev.compact .mc .sp{display:none}
+.ev.compact .mback img{width:20px;height:20px}
+.ev.compact .t{font-size:16px}
+.ev.compact .s{display:none}
+@keyframes rise{from{transform:translateY(16px) scale(.96);opacity:0}to{transform:none;opacity:1}}
+.pl .st .bub{font-style:normal;background:var(--ink);color:var(--bg);border-radius:8px;padding:1px 8px;display:inline-block;animation:rise .3s both;max-width:110px;overflow:hidden;text-overflow:ellipsis}
 .pl .st .think{font-style:normal;color:var(--muted)}
 .pl .st .think i{font-style:normal;animation:blink 1s infinite both}.pl .st .think i:nth-child(2){animation-delay:.15s}.pl .st .think i:nth-child(3){animation-delay:.3s}
 .pl .st{white-space:nowrap}
@@ -358,7 +368,7 @@ details.rules summary{font-weight:800;padding:14px 0;cursor:pointer}
 /* in Safari (niet als app op het beginscherm) ligt de onderbalk van de browser over de onderkant: houd de knoppen daar vandaan */
 @media not all and (display-mode: standalone){
   .dock{padding-bottom:calc(30px + env(safe-area-inset-bottom,0px))}
-  .wrap{padding-block-end:calc(210px + env(safe-area-inset-bottom,0px))}
+  .wrap{padding-block-end:calc(260px + env(safe-area-inset-bottom,0px))}
 }
 .dock[hidden]{display:none!important}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -858,45 +868,52 @@ function commit(){
 /* Wat andere spelers doen, laten we groot zien (uitgelichte kaart) en klein bij hun portret (tekstje) */
 const SPOT_MS=()=>pref.fast?1200:2400, BUB_MS=()=>pref.fast?1300:2600;
 function bubble(i,txt){ if(i==null) return; ui.bub=ui.bub||{}; ui.bub[i]={txt,until:Date.now()+BUB_MS()}; }
+/* Wat er gebeurt: een kaartje in de balk onderin, net als de uitslag in Pierenworp */
+const TT=t=>TY[t].title;
+function pendingEv(P){
+  const v=me(), by=P.by, tg=P.target, them=tg!=null?whom(tg):'';
+  if(P.nopes){
+    const lb=P.lastBy, still=P.nopes%2===0;
+    return {cards:['nope'],title:`${who(lb,true)} ${lb===v?'zegt':'zegt'} Nope!`,
+      sub:still?'Nope tegen Nope: de actie gaat toch door':`${by===v?'Jouw':'De'} ${P.kind==='card'?TT(P.type):'combinatie'}${by===v?'':' van '+S.players[by].name} gaat niet door`};
+  }
+  const nm=who(by,true);
+  if(P.kind==='card'){
+    const nx=E.nextAlive(S,by);
+    const sub=P.type==='attack'?`${who(nx,true)} moet straks ${S.stacked?S.turns+2:2} beurten spelen`
+      :P.type==='skip'?(by===v?'Je hoeft niet te trekken':'en hoeft niet te trekken')
+      :P.type==='shuffle'?'De trekstapel wordt geschud'
+      :P.type==='future'?'en bekijkt in het geheim de bovenste 3 kaarten'
+      :P.type==='favor'?(tg===v?'Jij moet een kaart geven':`${S.players[tg].name} moet een kaart geven`):'';
+    return {cards:[P.type],title:`${nm} speelt ${TT(P.type)}${P.type==='favor'?` tegen ${them}`:''}`,sub};
+  }
+  if(P.kind==='pair') return {cards:[P.type,P.type],title:`${nm} speelt 2× ${TT(P.type)}`,sub:`en steelt blind een kaart van ${them}`};
+  return {cards:[P.type,P.type,P.type],title:`${nm} speelt 3× ${TT(P.type)}`,sub:`en eist ${TT(P.named)} op van ${them}`};
+}
 function spotlight(ev){
-  const v=me(), now=Date.now(), by=ev.by, mineBy=by===v;
-  const T=t=>TY[t].title;
+  const v=me(), by=ev.by, mineBy=by===v, nm=by!=null&&S.players[by]?S.players[by].name:'';
   let s=null;
   switch(ev.k){
-    case 'play':{
-      const P=S.pending; if(!P||mineBy) break;
-      const tg=P.target, them=tg!=null?whom(tg):'';
-      if(P.kind==='card'){
-        const nx=E.nextAlive(S,by), sub=P.type==='attack'?`${who(nx,true)} moet straks ${S.stacked?S.turns+2:2} beurten spelen`
-          :P.type==='skip'?'en hoeft deze beurt niet te trekken'
-          :P.type==='shuffle'?'De trekstapel wordt geschud'
-          :P.type==='future'?'en bekijkt in het geheim de bovenste 3 kaarten'
-          :P.type==='favor'?(tg===v?'Jij moet een kaart geven':`${S.players[tg].name} moet een kaart geven`):'';
-        s={cards:[P.type],title:`${S.players[by].name} speelt ${T(P.type)}${P.type==='favor'?` tegen ${them}`:''}`,sub};
-      } else if(P.kind==='pair') s={cards:[P.type,P.type],title:`${S.players[by].name} speelt 2× ${T(P.type)}`,sub:`en steelt blind een kaart van ${them}`};
-      else s={cards:[P.type,P.type,P.type],title:`${S.players[by].name} speelt 3× ${T(P.type)}`,sub:`en eist ${T(P.named)} op van ${them}`};
-      bubble(by,P.kind==='card'?`speelt ${T(P.type)}`:`speelt ${P.kind==='pair'?2:3}× ${T(P.type)}`);
-      break;
-    }
-    case 'nope':{
+    case 'play': case 'nope':{
       const P=S.pending; if(!P) break;
-      bubble(by,'zegt Nope!');
-      if(mineBy) break;
-      s={cards:['nope'],title:`${S.players[by].name} zegt Nope!`,sub:ev.nopes%2?`${P.by===v?'Jouw':'De'} ${P.kind==='card'?T(P.type):'combinatie'}${P.by===v?'':' van '+S.players[P.by].name} gaat niet door`:'Nope tegen Nope: de actie gaat toch door'};
+      bubble(by,ev.k==='nope'?'zegt Nope!':P.kind==='card'?`speelt ${TT(P.type)}`:`speelt ${P.kind==='pair'?2:3}× ${TT(P.type)}`);
+      if(!mineBy) s=pendingEv(P);
       break;
     }
-    case 'attack': if(ev.to===v&&!mineBy) s={cards:['attack'],title:'Je bent aangevallen!',sub:`Jij moet nu ${ev.n} beurten spelen`}; else bubble(ev.to,`moet ${ev.n} beurten`); break;
-    case 'steal': if(ev.from===v) s={back:true,title:`${S.players[by].name} pakt een kaart van jou`,sub:'Welke kaart, zie je bovenin'}; bubble(by,ev.from===v?'steelt van jou':`steelt van ${S.players[ev.from].name}`); break;
-    case 'draw': if(!mineBy) bubble(by,'trekt een kaart'); break;
-    case 'skip': if(!mineBy) bubble(by,'slaat over'); break;
-    case 'shuffle': bubble(by,'schudt de stapel'); break;
-    case 'see': if(!mineBy) bubble(by,'kijkt in de toekomst'); break;
-    case 'cancel': bubble(by,'gaat niet door'); break;
-    case 'give': if(!mineBy) bubble(by,`geeft ${whom(ev.to)} een kaart`); break;
-    case 'favor': if(ev.to!==v) bubble(ev.to,'kiest een kaart…'); break;
-    case 'place': if(!mineBy) bubble(by,'legt de wombat terug'); break;
+    case 'attack': s=ev.to===v?{cards:['attack'],title:'Je bent aangevallen!',sub:`Jij moet nu ${ev.n} beurten spelen`}:{cards:['attack'],title:`${S.players[ev.to].name} moet ${ev.n} beurten spelen`,sub:`Aanval van ${who(by,false)}`}; bubble(ev.to,`moet ${ev.n} beurten`); break;
+    case 'steal': s={back:true,title:ev.from===v?`${nm} pakt een kaart van jou`:`${who(by,true)} ${mineBy?'pakt':'pakt'} een kaart van ${whom(ev.from)}`,sub:ev.from===v?'Welke kaart, zie je bovenin':''}; if(mineBy) s=null; bubble(by,ev.from===v?'steelt van jou':`steelt van ${S.players[ev.from].name}`); break;
+    case 'draw': if(!mineBy){ s={back:true,title:`${nm} trekt een kaart`,sub:S.turns>1&&S.cur===by?`Nog ${S.turns} beurten`:''}; bubble(by,'trekt een kaart'); } break;
+    case 'skip': if(!mineBy){ s={cards:['skip'],title:`${nm} slaat een beurt over`,sub:'zonder te trekken'}; bubble(by,'slaat over'); } break;
+    case 'shuffle': s={cards:['shuffle'],title:mineBy?'De stapel is geschud':`${nm} schudt de trekstapel`,sub:''}; bubble(by,'schudt de stapel'); if(mineBy) s=null; break;
+    case 'see': if(!mineBy){ s={cards:['future'],title:`${nm} kijkt in de toekomst`,sub:'en ziet de bovenste 3 kaarten'}; bubble(by,'kijkt in de toekomst'); } break;
+    case 'cancel': s={cards:['nope'],title:by===v?'Je actie gaat niet door':`De actie van ${nm} gaat niet door`,sub:''}; bubble(by,'gaat niet door'); break;
+    case 'give': if(!mineBy){ s={back:true,title:`${nm} geeft ${whom(ev.to)} een kaart`,sub:''}; bubble(by,`geeft ${whom(ev.to)} een kaart`); } break;
+    case 'favor': if(ev.to!==v){ s={cards:['favor'],title:`${S.players[ev.to].name} kiest een kaart`,sub:`voor ${whom(by)}`}; bubble(ev.to,'kiest een kaart…'); } break;
+    case 'defuse': if(!mineBy) s={cards:['defuse'],title:`${nm} ontmantelt een Exploding Wombat`,sub:'en stopt hem zo terug in de stapel'}; break;
+    case 'place': if(!mineBy){ s={cards:['ek'],title:`${nm} legt de wombat terug`,sub:'Waar? Dat weet alleen '+nm}; bubble(by,'legt de wombat terug'); } break;
+    case 'boom': s={cards:['ek'],title:mineBy?'Je bent ontploft':`${nm} is ontploft`,sub:''}; break;
   }
-  if(s){ s.until=now+SPOT_MS(); s.by=by; ui.spot=s; }
+  if(s){ s.at=Date.now(); s.until=s.at+SPOT_MS(); s.by=by; ui.last=s; }
 }
 function fx(ev){
   if(!ev) return;
@@ -948,7 +965,7 @@ function schedule(){
   const n=E.needs(S); if(n==null) return;
   const p=S.players[n];
   if(p.ai){
-    const busy=ui.spot&&ui.spot.until>Date.now()?ui.spot.until-Date.now():0;
+    const busy=ui.last&&ui.last.until>Date.now()?ui.last.until-Date.now():0;
     const d=Math.max(({play:1900,favor:1700,defuse:1700}[S.phase]||1400)*sp,busy+(pref.fast?150:450));
     if(runAI) aiTimer=setTimeout(aiStep,d);
     // online speelt de starter voor de computer; valt die weg, dan neemt een andere telefoon het over
@@ -1453,11 +1470,10 @@ function gameHTML(){
   return headerHTML('game')+`
   <section class="opps" aria-label="Medespelers">${others.map(i=>plHTML(i)).join('')}</section>
   <section class="table" aria-label="Tafel">
-    <button class="pile${canDraw?' can':''}${shake?' shake':''}" data-act="draw" ${canDraw?'':'disabled'} aria-label="Trekstapel, ${S.deck.length} kaarten${canDraw?'. Tik om een kaart te trekken':''}">${backHTML(0.4)}<span class="lbl">Trekstapel · ${S.deck.length}</span></button>
-    <button class="pile" data-act="show" ${top?`data-c="${top}"`:'disabled'} aria-label="Aflegstapel${top?': '+esc(TY[tOf(top)].title):''}">${top?cardHTML(tOf(top),0.4):'<div class="empty-pile"></div>'}<span class="lbl">Aflegstapel</span></button>
+    <button class="pile${canDraw?' can':''}${shake?' shake':''}" data-act="draw" ${canDraw?'':'disabled'} aria-label="Trekstapel, ${S.deck.length} kaarten${canDraw?'. Tik om een kaart te trekken':''}">${backHTML(0.36)}<span class="lbl">Trekstapel · ${S.deck.length}</span></button>
+    <button class="pile" data-act="show" ${top?`data-c="${top}"`:'disabled'} aria-label="Aflegstapel${top?': '+esc(TY[tOf(top)].title):''}">${top?cardHTML(tOf(top),0.36):'<div class="empty-pile"></div>'}<span class="lbl">Aflegstapel</span></button>
   </section>
   <div class="chips">${chips.join('')}</div>
-  <ul class="log" aria-live="polite">${lg}</ul>
   ${hand}`;
 }
 function overHTML(){
@@ -1598,12 +1614,6 @@ function fxHTML(){
       :`<div class="boom" data-act="fx-off" role="alert">${cardHTML('ek',0.5)}<b>BOEM!</b><span>${mine?'Je ontploft!':esc(p.name)+' ontploft!'}</span></div>`;
   }
   if(now-ui.stamp<1300) h+=`<div class="stamp" aria-hidden="true">NOPE!</div>`;
-  const sp=ui.spot;
-  if(sp&&now<sp.until&&S&&!(ui.boom&&now<ui.boom.until)&&!needHandoff()){
-    const n=sp.back?1:sp.cards.length, sc=n===1?0.62:n===2?0.5:0.42;
-    const cards=sp.back?backHTML(0.5):sp.cards.map(t=>cardHTML(t,sc)).join('');
-    h+=`<div class="spot n${n}" role="status" aria-live="polite"><div class="spot-in"><div class="spot-cards">${cards}</div><p class="spot-t">${esc(sp.title)}</p>${sp.sub?`<p class="spot-s">${esc(sp.sub)}</p>`:''}</div></div>`;
-  }
   return h;
 }
 
@@ -1644,6 +1654,13 @@ const who=(i,cap)=>i===me()?(cap?'Jij':'jij'):S.players[i].name;
 const whom=i=>i===me()?'jou':S.players[i].name;
 
 /* ---------- actiebalk ---------- */
+function evHTML(e,compact){
+  if(!e) return '';
+  const col=e.back?'#D63B1F':TY[e.cards[0]].color;
+  const vis=e.back?`<div class="mback"><img src="${SRC('icon-192.png')}" alt=""></div>`:e.cards.map(t=>miniHTML(t+'#0')).join('');
+  return `<div class="ev${compact?' compact':''} n${e.back?1:e.cards.length}" style="--cc:${col}" role="status"><div class="ev-vis">${vis}</div><div class="ev-t"><p class="t">${esc(e.title)}</p>${e.sub?`<p class="s">${esc(e.sub)}</p>`:''}</div></div>`;
+}
+
 const waitHTML=m=>`<div class="wait"><span class="dots"><i></i><i></i><i></i></span><span class="dock-msg" aria-live="polite">${m}</span></div>`;
 function statusMsg(){
   const n=E.needs(S); if(n==null) return '';
@@ -1651,6 +1668,7 @@ function statusMsg(){
   if(S.phase==='favor') return `${name} kiest een kaart voor <b>${esc(whom(S.favor.to))}</b>.`;
   if(S.phase==='defuse') return `${name} stopt de Exploding Wombat terug in de stapel…`;
   if(you) return S.turns>1?`${name} bent aan de beurt (nog ${S.turns} beurten).`:`${name} bent aan de beurt.`;
+  if(S.players[n].ai) return S.turns>1?`${name} denkt na… (nog ${S.turns} beurten)`:`${name} denkt na…`;
   return S.turns>1?`${name} is aan de beurt (nog ${S.turns} beurten).`:`${name} is aan de beurt.`;
 }
 function reactMsg(){
@@ -1692,10 +1710,11 @@ function dockHTML(scr){
       // samen op één telefoon: een knop voor elke mens die mag reageren, zonder te verraden wie een Nope heeft
       btns=S.players.map((p,i)=>(!p.ai&&!p.out&&i!==P.lastBy)?`<button class="btn nope" data-act="nope" data-i="${i}">Nope · ${esc(p.name)}</button>`:'').join('');
     }
-    return `<div class="dock-in">${pre}<p class="dock-msg" aria-live="polite">${reactMsg()}</p><div class="timer" role="progressbar" aria-label="Tijd om te reageren"><i style="--d:${left}ms;--from:${(left/dur*100).toFixed(1)}%"></i></div>${btns}</div>`;
+    return `<div class="dock-in">${pre}${evHTML(pendingEv(P))}<div class="timer" role="progressbar" aria-label="Tijd om te reageren"><i style="--d:${left}ms;--from:${(left/dur*100).toFixed(1)}%"></i></div>${btns}</div>`;
   }
-  if(!isMine()) return `<div class="dock-in">${pre}${waitHTML(statusMsg())}</div>`;
-  let a=pre;
+  const last=ui.last&&ui.last.by!==v&&Date.now()-ui.last.at<9000?ui.last:null;
+  if(!isMine()) return `<div class="dock-in">${pre}${last?evHTML(last):''}${waitHTML(statusMsg())}</div>`;
+  let a=pre+(last&&Date.now()-last.at<4000?evHTML(last,true):'');
   if(S.phase==='play'){
     a+=`<p class="dock-msg" aria-live="polite">${S.turns>1?`<b>Jouw beurt</b> (nog ${S.turns} beurten).`:'<b>Jouw beurt.</b>'} Tik op een kaart om hem te spelen, of trek een kaart.</p>`;
     a+=`<button class="btn${ui.ping?' ping':''}" data-act="draw">Trek een kaart</button>`;
@@ -1736,7 +1755,7 @@ function render(){
   layer.innerHTML=ui.tour!=null?tourHTML():(ui.sheet&&ui.sheet.k==='rules')?rulesSheetHTML():(scr==='game'||scr==='over')?sheetHTML():'';
   fxEl.innerHTML=fxHTML();
   clearTimeout(fxTimer);
-  const pend=[ui.boom&&ui.boom.until-Date.now(),1300-(Date.now()-ui.stamp),700-(Date.now()-ui.shake),ui.spot&&ui.spot.until-Date.now(),...Object.values(ui.bub||{}).map(b=>b.until-Date.now())].filter(x=>x>0);
+  const pend=[ui.boom&&ui.boom.until-Date.now(),1300-(Date.now()-ui.stamp),700-(Date.now()-ui.shake),...Object.values(ui.bub||{}).map(b=>b.until-Date.now())].filter(x=>x>0);
   if(pend.length) fxTimer=setTimeout(render,Math.min(...pend)+30);
   const tt=ON&&scr==='game'&&isMine()?'● Jouw beurt · Wombam!':'Wombam!';
   if(document.title!==tt) document.title=tt;
