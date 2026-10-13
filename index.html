@@ -895,7 +895,15 @@ function pumpInbox(){
 /* De stand van een online spel staat in Firebase onder wombam/rooms/CODE als { d: JSON-tekst, rev: volgnummer, t: tijd }.
    Elke zet is een transactie op de actuele stand: zo kunnen ook spelers die niet aan de beurt zijn veilig Nope spelen
    of een kaart afgeven. Vul hieronder het firebaseConfig-blok van je eigen Firebase-project in. */
-const FIREBASE_CONFIG=null;
+const FIREBASE_CONFIG={
+  apiKey:'AIzaSyCIRA-p2mA0hmBc3OpSTWT2WrzG8GeS27w',
+  authDomain:'wombam-d07f9.firebaseapp.com',
+  databaseURL:'https://wombam-d07f9-default-rtdb.asia-southeast1.firebasedatabase.app',
+  projectId:'wombam-d07f9',
+  storageBucket:'wombam-d07f9.firebasestorage.app',
+  messagingSenderId:'756825725250',
+  appId:'1:756825725250:web:59fb4452daa160ecb410db'
+};
 const FB_SDK='https://www.gstatic.com/firebasejs/10.12.2/';
 const ROOMS='wombam/rooms/';
 const CODE_CHARS='ABCDEFGHJKLMNPQRSTUVWXYZ';

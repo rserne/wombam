@@ -23,7 +23,7 @@ De app is een PWA: je zet hem op het beginscherm van je telefoon, en na het eers
 
 ## Online spelen
 
-Online spelen loopt via Firebase: anoniem inloggen en een Realtime Database in asia-southeast1 (Singapore). Een spel staat onder `wombam/rooms/CODE` als `{ d, rev, t }`: `d` is de spelstand als JSON-tekst, `rev` een volgnummer dat bij elke zet ophoogt en `t` de tijd. Elke zet is een transactie op de actuele stand, zodat ook spelers die niet aan de beurt zijn veilig Nope kunnen spelen of een kaart kunnen afgeven.
+Online spelen loopt via Firebase (project *wombam-d07f9*): anoniem inloggen en een Realtime Database in asia-southeast1 (Singapore). Een spel staat onder `wombam/rooms/CODE` als `{ d, rev, t }`: `d` is de spelstand als JSON-tekst, `rev` een volgnummer dat bij elke zet ophoogt en `t` de tijd. Elke zet is een transactie op de actuele stand, zodat ook spelers die niet aan de beurt zijn veilig Nope kunnen spelen of een kaart kunnen afgeven.
 
 De verbindingsgegevens staan bovenin het tweede script van `index.html` (`FIREBASE_CONFIG`). Die zijn niet geheim.
 
