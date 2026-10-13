@@ -983,7 +983,8 @@ function schedule(){
   const p=S.players[n];
   if(p.ai){
     const busy=Math.max(0,(ui.last?ui.last.until:0)-Date.now(),(ui.boom?ui.boom.until:0)-Date.now());
-    const d=Math.max(({play:1900,favor:1700,defuse:1700}[S.phase]||1400)*sp,busy+(pref.fast?150:450));
+    // na het kaartje onderin staat 'Bolle is aan de beurt' nog even in beeld voordat hij zet
+    const d=Math.max(({play:1900,favor:1700,defuse:1700}[S.phase]||1400)*sp,busy+(pref.fast?500:1200));
     if(runAI) aiTimer=setTimeout(aiStep,d);
     // online speelt de starter voor de computer; valt die weg, dan neemt een andere telefoon het over
     else aiTimer=setTimeout(()=>{ if(ON&&Date.now()-ON.changed>=AI_STALL) aiStep(); else schedule(); },AI_STALL);
@@ -1674,7 +1675,6 @@ function statusMsg(){
   if(S.phase==='favor') return `${name} kiest een kaart voor <b>${esc(whom(S.favor.to))}</b>.`;
   if(S.phase==='defuse') return `${name} stopt de Exploding Wombat terug in de stapel…`;
   if(you) return S.turns>1?`${name} bent aan de beurt (nog ${S.turns} beurten).`:`${name} bent aan de beurt.`;
-  if(S.players[n].ai) return S.turns>1?`${name} denkt na… (nog ${S.turns} beurten)`:`${name} denkt na…`;
   return S.turns>1?`${name} is aan de beurt (nog ${S.turns} beurten).`:`${name} is aan de beurt.`;
 }
 function reactMsg(){
@@ -1721,8 +1721,9 @@ function dockHTML(scr){
   // Steeds één ding onderin: de laatste zet van een ander, óf jouw knop. Na een zet van een ander blijft die eerst even staan.
   // Je eigen kaartjes (wat je trekt) ziet alleen jij; zetten van anderen ziet iedereen.
   const last=ui.last&&(!ui.last.self||ui.last.by===v)?ui.last:null;
-  if(!isMine()) return `<div class="dock-in">${pre}${last?evHTML(last):waitHTML(statusMsg())}</div>`;
+  // Eerst de zet zelf, daarna net als in Pierenworp wie er aan de beurt is (of jouw knop).
   if(last&&Date.now()<last.until) return `<div class="dock-in">${pre}${evHTML(last)}</div>`;
+  if(!isMine()) return `<div class="dock-in">${pre}${waitHTML(statusMsg())}</div>`;
   let a=pre;
   if(S.phase==='play'){
     a+=`<p class="dock-msg" aria-live="polite">${S.turns>1?`<b>Jouw beurt</b> (nog ${S.turns} beurten).`:'<b>Jouw beurt.</b>'} Tik op een kaart om hem te spelen, of trek een kaart.</p>`;
