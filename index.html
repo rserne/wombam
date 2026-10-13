@@ -1507,10 +1507,10 @@ const TOUR=[
 function tourHTML(){
   const i=Math.max(0,Math.min(TOUR.length-1,ui.tour)), s=TOUR[i], last=i===TOUR.length-1;
   let vis;
-  if(s.v==='hand') vis=`<div class="vis"><div class="hrow">${['defuse','attack','nope','taco','taco'].map((t,j)=>`<div style="margin-right:${j===4?0:-26}px">${typeMini(t)}</div>`).join('')}</div></div>`;
+  if(s.v==='hand') vis=`<div data-k="v${i}" class="vis"><div class="hrow">${['defuse','attack','nope','taco','taco'].map((t,j)=>`<div style="margin-right:${j===4?0:-26}px">${typeMini(t)}</div>`).join('')}</div></div>`;
   else{
     const cards=s.v.filter(x=>x!=='>'), sc=cards.length===1?0.54:cards.length===2?0.46:0.4;
-    vis=`<div class="vis n${s.v.length}">${s.v.map(x=>x==='>'?'<span class="arrow" aria-hidden="true">→</span>':x==='back'?backHTML(sc):cardHTML(x,sc)).join('')}</div>`;
+    vis=`<div data-k="v${i}" class="vis n${s.v.length}">${s.v.map(x=>x==='>'?'<span class="arrow" aria-hidden="true">→</span>':x==='back'?backHTML(sc):cardHTML(x,sc)).join('')}</div>`;
   }
   return `<div class="ov" data-act="tour-bg" role="dialog" aria-label="Uitleg: ${esc(s.t)}"><div class="sheet tour" data-tour>
     <p class="step">Uitleg · ${i+1} van ${TOUR.length}</p>
@@ -1577,7 +1577,7 @@ function sheetHTML(){
       <div class="where"><span>${i+1} van ${list.length}</span><div class="tdots" aria-hidden="true">${list.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')}</div></div>
       <button class="nav" data-act="flip" data-d="1" ${i<list.length-1?'':'disabled'} aria-label="Volgende kaart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
     </div>`:'';
-    return `<div class="ov" data-act="close-bg" role="dialog" aria-label="${esc(TY[t].title)}">${X}<div class="sheet" data-flip><div class="${sl}">${cardHTML(t,1.16,n)}</div>${nav}${hint?`<p>${hint}</p>`:''}${acts.length?`<div class="acts">${acts.join('')}</div>`:''}</div></div>`;
+    return `<div class="ov" data-act="close-bg" role="dialog" aria-label="${esc(TY[t].title)}">${X}<div class="sheet" data-flip><div data-k="c${t}" class="${sl}">${cardHTML(t,1.16,n)}</div>${nav}${hint?`<p>${hint}</p>`:''}${acts.length?`<div class="acts">${acts.join('')}</div>`:''}</div></div>`;
   }
   if(sh.k==='target'){
     const title=sh.mode==='favor'?'Wie geeft jou een kaart?':sh.mode==='pair'?'Van wie steel je een kaart?':'Van wie eis je een kaart op?';
@@ -1656,7 +1656,7 @@ function evHTML(e,compact){
   if(!e) return '';
   const col=e.back?'#D63B1F':TY[e.cards[0]].color;
   const vis=e.back?`<div class="mback"><img src="${SRC('icon-192.png')}" alt=""></div>`:e.cards.map(t=>miniHTML(t+'#0')).join('');
-  return `<div class="ev${compact?' compact':''} n${e.back?1:e.cards.length}" style="--cc:${col}" role="status"><div class="ev-vis">${vis}</div><div class="ev-t"><p class="t">${esc(e.title)}</p>${e.sub?`<p class="s">${esc(e.sub)}</p>`:''}</div></div>`;
+  return `<div data-k="ev${e.at||e.k||''}${compact?'c':''}" class="ev${compact?' compact':''} n${e.back?1:e.cards.length}" style="--cc:${col}" role="status"><div class="ev-vis">${vis}</div><div class="ev-t"><p class="t">${esc(e.title)}</p>${e.sub?`<p class="s">${esc(e.sub)}</p>`:''}</div></div>`;
 }
 
 const waitHTML=m=>`<div class="wait"><span class="dots"><i></i><i></i><i></i></span><span class="dock-msg" aria-live="polite">${m}</span></div>`;
@@ -1708,7 +1708,7 @@ function dockHTML(scr){
       // samen op één telefoon: een knop voor elke mens die mag reageren, zonder te verraden wie een Nope heeft
       btns=S.players.map((p,i)=>(!p.ai&&!p.out&&i!==P.lastBy)?`<button class="btn nope" data-act="nope" data-i="${i}">Nope · ${esc(p.name)}</button>`:'').join('');
     }
-    return `<div class="dock-in">${pre}${evHTML(pendingEv(P))}<div class="timer" role="progressbar" aria-label="Tijd om te reageren"><i style="--d:${left}ms;--from:${(left/dur*100).toFixed(1)}%"></i></div>${btns}</div>`;
+    return `<div class="dock-in">${pre}${evHTML({...pendingEv(P),k:P.k})}<div data-k="t${P.k}" class="timer" role="progressbar" aria-label="Tijd om te reageren"><i style="--d:${left}ms;--from:${(left/dur*100).toFixed(1)}%"></i></div>${btns}</div>`;
   }
   // Steeds één ding onderin: de laatste zet van een ander, óf jouw knop. Na een zet van een ander blijft die eerst even staan.
   const last=ui.last&&ui.last.by!==v?ui.last:null;
@@ -1742,6 +1742,30 @@ function checkSheet(){
   }
   if(!ui.sheet&&isMine()&&S.phase==='defuse'){ ui.sheet={k:'place'}; ui.pos=Math.min(S.turns>1?S.turns-1:0,S.deck.length); }
 }
+/* Alleen bijwerken wat echt verandert: zo blijven animaties en afbeeldingen rustig staan.
+   Elementen met data-k worden vervangen als de sleutel verandert (dan speelt hun animatie opnieuw)
+   en met rust gelaten zolang de sleutel gelijk blijft. */
+const TPL=document.createElement('template');
+function morph(el,html){
+  if(el.__h===html) return; el.__h=html;
+  TPL.innerHTML=html; patchKids(el,TPL.content);
+}
+function patchKids(a,b){
+  const an=[...a.childNodes], bn=[...b.childNodes];
+  bn.forEach((y,i)=>{ const x=an[i]; if(!x) a.appendChild(y); else patchNode(a,x,y); });
+  for(let i=bn.length;i<an.length;i++) a.removeChild(an[i]);
+}
+function patchNode(parent,x,y){
+  if(x.nodeType!==y.nodeType||x.nodeName!==y.nodeName){ parent.replaceChild(y,x); return; }
+  if(x.nodeType!==1){ if(x.nodeValue!==y.nodeValue) x.nodeValue=y.nodeValue; return; }
+  const kx=x.getAttribute('data-k'), ky=y.getAttribute('data-k');
+  if(kx!==ky){ parent.replaceChild(y,x); return; }
+  if(ky!=null) return;
+  for(const at of [...x.attributes]) if(!y.hasAttribute(at.name)&&!(at.name==='open'&&x.nodeName==='DETAILS')) x.removeAttribute(at.name);
+  for(const at of [...y.attributes]) if(x.getAttribute(at.name)!==at.value) x.setAttribute(at.name,at.value);
+  if(x.nodeName==='INPUT'&&y.hasAttribute('value')&&document.activeElement!==x&&x.value!==y.getAttribute('value')) x.value=y.getAttribute('value');
+  patchKids(x,y);
+}
 let pressing=0, renderLater=false;
 function render(){
   if(pressing&&Date.now()-pressing<1500){ renderLater=true; return; }   // eerst de tik laten afmaken
@@ -1750,10 +1774,10 @@ function render(){
   syncReact();
   const scr=screen();
   if(scr==='game'||scr==='over'||scr==='handoff'){ checkSheet(); pumpInbox(); } else if(scr!=='handoff'&&!(ui.sheet&&ui.sheet.k==='rules')) ui.sheet=null;
-  app.innerHTML=scr==='setup'?setupHTML():scr==='connecting'?connectingHTML():scr==='lobby'?lobbyHTML():scr==='over'?overHTML():scr==='handoff'?handoffHTML():gameHTML();
-  const dh=dockHTML(scr); dock.innerHTML=dh; dock.hidden=!dh;
-  layer.innerHTML=ui.tour!=null?tourHTML():(ui.sheet&&ui.sheet.k==='rules')?rulesSheetHTML():(scr==='game'||scr==='over')?sheetHTML():'';
-  fxEl.innerHTML=fxHTML();
+  morph(app,scr==='setup'?setupHTML():scr==='connecting'?connectingHTML():scr==='lobby'?lobbyHTML():scr==='over'?overHTML():scr==='handoff'?handoffHTML():gameHTML());
+  const dh=dockHTML(scr); morph(dock,dh); dock.hidden=!dh;
+  morph(layer,ui.tour!=null?tourHTML():(ui.sheet&&ui.sheet.k==='rules')?rulesSheetHTML():(scr==='game'||scr==='over')?sheetHTML():'');
+  morph(fxEl,fxHTML());
   clearTimeout(fxTimer);
   const pend=[ui.last&&ui.last.at+HOLD_MS()-Date.now()+20,ui.boom&&ui.boom.until-Date.now(),1300-(Date.now()-ui.stamp),700-(Date.now()-ui.shake),...Object.values(ui.bub||{}).map(b=>b.until-Date.now())].filter(x=>x>0);
   if(pend.length) fxTimer=setTimeout(render,Math.min(...pend)+30);
