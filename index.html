@@ -151,6 +151,9 @@ button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid
 .btn{flex:1 1 140px;min-height:54px;border:2px solid var(--cardink);border-radius:16px;padding:0 18px;font-weight:800;font-size:16.5px;background:var(--accent);color:#fff;box-shadow:0 4px 0 var(--cardink);transition:transform .1s,box-shadow .1s}
 .btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--cardink)}
 .btn.go{background:var(--good);color:#fff}
+.btn.autonext{background-image:linear-gradient(90deg,rgba(255,255,255,.24) 50%,transparent 50%);background-size:200% 100%;background-position:100% 0;animation:fillbar var(--auto) linear forwards}
+@keyframes fillbar{to{background-position:0 0}}
+@media (prefers-reduced-motion:reduce){.btn.autonext{animation:none}}
 .btn.soft{background:var(--surface);color:var(--ink);border-color:var(--line);box-shadow:var(--shadow)}
 .btn.soft:active{transform:scale(.97)}
 .btn.nope{background:#2E2A33;color:#fff;font-family:var(--f-display);font-weight:400;font-size:19px;letter-spacing:.02em}
@@ -868,7 +871,7 @@ function commit(){
 /* Wat andere spelers doen, laten we groot zien (uitgelichte kaart) en klein bij hun portret (tekstje) */
 /* Alles op één tijdlijn: eerst het groot effect (BOEM of Pfoe), dan blijft het kaartje onderin nog even staan,
    en pas daarna komt de volgende zet. Dat geldt voor de computer én voor je eigen zetten. */
-const SPOT_MS=()=>pref.fast?1200:2400, OWN_MS=()=>pref.fast?700:1400,
+const SPOT_MS=()=>pref.fast?1200:2400, OWN_MS=()=>pref.fast?700:1400, NEXT_MS=()=>pref.fast?1400:2800,
   OVL_MS=k=>(k==='boom'?3000:2400)*(pref.fast?0.6:1);
 function bubble(){}   // (tekstjes bij de portretten: alles staat nu onderin)
 /* Wat er gebeurt: een kaartje in de balk onderin, net als de uitslag in Pierenworp */
@@ -928,8 +931,10 @@ function spotlight(ev){
   }
   // Na een groot effect (BOEM of Pfoe) blijft het kaartje onderin nog een volle periode staan.
   const now=Date.now(), ovl=ev.k==='boom'||ev.k==='defuse'?OVL_MS(ev.k):0;
-  if(s){ s.at=now; s.until=now+ovl+SPOT_MS(); s.by=by; ui.last=s; }
-  else if(own){ own.at=now; own.until=now+ovl+OWN_MS(); own.by=by; own.self=true; ui.last=own; }
+  // Ging de beurt door je eigen zet naar een ander, dan wacht het spel op 'Verder naar …' (of loopt die vanzelf af).
+  const n=mineBy&&S.phase!=='over'&&S.phase!=='react'?E.needs(S):null, pass=n!=null&&n!==v;
+  if(s){ s.at=now; s.until=now+ovl+(pass?NEXT_MS():SPOT_MS()); s.by=by; s.next=pass; ui.last=s; }
+  else if(own){ own.at=now; own.until=now+ovl+(pass?NEXT_MS():OWN_MS()); own.by=by; own.self=true; own.next=pass; ui.last=own; }
   else if(mineBy) ui.last=null;
 }
 function fx(ev){
@@ -1722,7 +1727,12 @@ function dockHTML(scr){
   // Je eigen kaartjes (wat je trekt) ziet alleen jij; zetten van anderen ziet iedereen.
   const last=ui.last&&(!ui.last.self||ui.last.by===v)?ui.last:null;
   // Eerst de zet zelf, daarna net als in Pierenworp wie er aan de beurt is (of jouw knop).
-  if(last&&Date.now()<last.until) return `<div class="dock-in">${pre}${evHTML(last)}</div>`;
+  if(last&&Date.now()<last.until){
+    const n=E.needs(S);
+    if(last.next&&last.by===v&&!isMine()&&n!=null&&S.phase!=='react')
+      return `<div class="dock-in">${pre}${evHTML(last)}<button data-k="nx${last.at}" class="btn autonext" data-act="next" style="--auto:${Math.max(0,last.until-Date.now())}ms">Verder naar ${esc(S.players[n].name)}</button></div>`;
+    return `<div class="dock-in">${pre}${evHTML(last)}</div>`;
+  }
   if(!isMine()) return `<div class="dock-in">${pre}${waitHTML(statusMsg())}</div>`;
   let a=pre;
   if(S.phase==='play'){
@@ -1861,6 +1871,7 @@ document.addEventListener('click',e=>{
       if(ui.sheet&&ui.sheet.k==='card') ui.sheet=null;
       act('nope',i,S.pending.k); break;
     }
+    case 'next': if(ui.last) ui.last.until=Date.now(); render(); schedule(); break;
     case 'open-place': ui.sheet={k:'place'}; ui.pos=0; render(); break;
     case 'pos':{
       const p=b.dataset.p==='rnd'?Math.floor(Math.random()*(S.deck.length+1)):+b.dataset.p;
