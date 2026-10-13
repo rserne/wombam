@@ -275,6 +275,11 @@ button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid
 .boom{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:radial-gradient(circle at 50% 45%,#FFD23F 0,#F0761A 30%,#C9261A 62%,#3A0C06 100%);animation:boom .6s ease-out both,shakeall .5s .05s both;color:#fff;text-align:center;padding:24px}
 .boom b{font-family:var(--f-display);font-weight:400;font-size:88px;line-height:1;color:#FFD23F;text-shadow:0 5px 0 #1E120B,4px 0 0 #1E120B,-4px 0 0 #1E120B,0 -4px 0 #1E120B}
 .boom span{font-size:20px;font-weight:800;text-shadow:0 2px 0 rgba(0,0,0,.4)}
+.boom.alert{background:radial-gradient(circle at 50% 45%,#7A1A0C 0,#3A0C06 55%,#120403 100%);animation:boom .35s ease-out both}
+.boom.alert b{font-size:72px}
+.boom .wob{animation:wob .22s ease-in-out infinite alternate}
+@keyframes wob{from{transform:rotate(-5deg) scale(1)}to{transform:rotate(5deg) scale(1.06)}}
+@media (prefers-reduced-motion:reduce){.boom .wob{animation:none}}
 .boom.saved{background:radial-gradient(circle at 50% 45%,#E8FFB0 0,#5CC46A 35%,#1E6F2B 75%,#08200C 100%)}
 @keyframes boom{from{opacity:0;transform:scale(1.2)}to{opacity:1;transform:none}}
 @keyframes shakeall{20%{transform:translate(-8px,4px)}40%{transform:translate(7px,-5px)}60%{transform:translate(-5px,3px)}80%{transform:translate(3px,-2px)}}
@@ -793,6 +798,7 @@ const SND={
   play:()=>withCtx(c=>{ const t=c.currentTime+0.01; hiss(c,t,0.07,'lowpass',1600,600,0.7,0.5); tone(c,'sine',150,90,t,0.08,0.25); }),
   shuffle:()=>withCtx(c=>{ const t=c.currentTime+0.01; for(let i=0;i<24;i++) hiss(c,t+i*0.026+Math.random()*0.01,0.02,'bandpass',2600+Math.random()*1800,0,3,0.12); }),
   boom:()=>withCtx(c=>{ const t=c.currentTime+0.01; hiss(c,t,1.5,'lowpass',1200,50,0.8,1.0); tone(c,'sine',90,30,t,0.9,0.9); tone(c,'triangle',60,25,t+0.05,1.1,0.5); }),
+  fuse:()=>withCtx(c=>{ const t=c.currentTime+0.01; hiss(c,t,1.3,'bandpass',2600,3800,4,0.22); tone(c,'square',880,880,t+0.05,0.06,0.05); tone(c,'square',880,880,t+0.45,0.06,0.05); tone(c,'square',880,880,t+0.85,0.06,0.05); }),
   defuse:()=>withCtx(c=>{ const t=c.currentTime+0.01; hiss(c,t,0.04,'highpass',4500,0,0.7,0.35); hiss(c,t+0.11,0.04,'highpass',4500,0,0.7,0.35); tone(c,'sine',520,1100,t+0.2,0.25,0.18); }),
   nope:()=>withCtx(c=>{ const t=c.currentTime+0.01; tone(c,'square',330,300,t,0.13,0.11); tone(c,'square',220,180,t+0.16,0.22,0.12); }),
   attack:()=>withCtx(c=>{ const t=c.currentTime+0.01; hiss(c,t,0.35,'bandpass',300,2600,1.4,0.42); tone(c,'sawtooth',110,70,t+0.25,0.18,0.1); }),
@@ -872,7 +878,9 @@ function commit(){
 /* Alles op één tijdlijn: eerst het groot effect (BOEM of Pfoe), dan blijft het kaartje onderin nog even staan,
    en pas daarna komt de volgende zet. Dat geldt voor de computer én voor je eigen zetten. */
 const SPOT_MS=()=>pref.fast?1200:2400, OWN_MS=()=>pref.fast?700:1400, NEXT_MS=()=>pref.fast?1400:2800,
-  OVL_MS=k=>(k==='boom'?3000:2400)*(pref.fast?0.6:1);
+  ALERT_MS=()=>pref.fast?1000:1800,
+  OVL_MS=k=>ALERT_MS()+(k==='boom'?3000:2400)*(pref.fast?0.6:1);
+let fxSndTimer=null;
 function bubble(){}   // (tekstjes bij de portretten: alles staat nu onderin)
 /* Wat er gebeurt: een kaartje in de balk onderin, net als de uitslag in Pierenworp */
 const TT=t=>TY[t].title;
@@ -945,8 +953,14 @@ function fx(ev){
     case 'play': SND.play(); break;
     case 'nope': SND.nope(); if(ev.by===me()) ui.stamp=now; break;
     case 'draw': SND.draw(); break;
-    case 'boom': SND.boom(); ui.boom={by:ev.by,until:now+OVL_MS('boom'),saved:false}; break;
-    case 'defuse': SND.defuse(); ui.boom={by:ev.by,until:now+OVL_MS('defuse'),saved:true}; break;
+    case 'boom': case 'defuse': {
+      // eerst zie je de Exploding Wombat die getrokken is, daarna pas Pfoe! of BOEM!
+      const saved=ev.k==='defuse';
+      ui.boom={by:ev.by,at:now,step:now+ALERT_MS(),until:now+OVL_MS(ev.k),saved};
+      SND.fuse(); clearTimeout(fxSndTimer);
+      fxSndTimer=setTimeout(()=>{ if(ui.boom&&Date.now()<ui.boom.until) (saved?SND.defuse:SND.boom)(); },ALERT_MS());
+      break;
+    }
     case 'shuffle': SND.shuffle(); ui.shake=now; break;
     case 'attack': SND.attack(); break;
     case 'cancel': SND.cancel(); break;
@@ -1620,10 +1634,12 @@ function sheetHTML(){
 function fxHTML(){
   const now=Date.now(); let h='';
   if(ui.boom&&now<ui.boom.until&&S){
-    const p=S.players[ui.boom.by], mine=ui.boom.by===me();
-    h+=ui.boom.saved
-      ?`<div class="boom saved" data-act="fx-off" role="alert">${cardHTML('defuse',0.5)}<b>Pfoe!</b><span>${mine?'Je ontmantelt de Exploding Wombat.':esc(p.name)+' ontmantelt een Exploding Wombat.'}</span></div>`
-      :`<div class="boom" data-act="fx-off" role="alert">${cardHTML('ek',0.5)}<b>BOEM!</b><span>${mine?'Je ontploft!':esc(p.name)+' ontploft!'}</span></div>`;
+    const p=S.players[ui.boom.by], mine=ui.boom.by===me(), B=ui.boom;
+    h+=now<B.step
+      ?`<div class="boom alert" data-k="fxa${B.at}" data-act="fx-off" role="alert"><div class="wob">${cardHTML('ek',0.5)}</div><b>Oei!</b><span>${mine?'Je trekt een Exploding Wombat…':esc(p.name)+' trekt een Exploding Wombat…'}</span></div>`
+      :B.saved
+      ?`<div class="boom saved" data-k="fxs${B.at}" data-act="fx-off" role="alert">${cardHTML('defuse',0.5)}<b>Pfoe!</b><span>${mine?'Je ontmantelt de Exploding Wombat.':esc(p.name)+' ontmantelt een Exploding Wombat.'}</span></div>`
+      :`<div class="boom" data-k="fxb${B.at}" data-act="fx-off" role="alert">${cardHTML('ek',0.5)}<b>BOEM!</b><span>${mine?'Je ontploft!':esc(p.name)+' ontploft!'}</span></div>`;
   }
   if(now-ui.stamp<1300) h+=`<div class="stamp" aria-hidden="true">NOPE!</div>`;
   return h;
@@ -1801,7 +1817,7 @@ function render(){
   morph(layer,ui.tour!=null?tourHTML():(ui.sheet&&ui.sheet.k==='rules')?rulesSheetHTML():(scr==='game'||scr==='over')?sheetHTML():'');
   morph(fxEl,fxHTML());
   clearTimeout(fxTimer);
-  const pend=[ui.last&&ui.last.until-Date.now()+20,ui.boom&&ui.boom.until-Date.now(),1300-(Date.now()-ui.stamp),700-(Date.now()-ui.shake)].filter(x=>x>0);
+  const pend=[ui.last&&ui.last.until-Date.now()+20,ui.boom&&ui.boom.step-Date.now(),ui.boom&&ui.boom.until-Date.now(),1300-(Date.now()-ui.stamp),700-(Date.now()-ui.shake)].filter(x=>x>0);
   if(pend.length) fxTimer=setTimeout(render,Math.min(...pend)+30);
   const tt=ON&&scr==='game'&&isMine()?'● Jouw beurt · Wombam!':'Wombam!';
   if(document.title!==tt) document.title=tt;
@@ -1878,7 +1894,7 @@ document.addEventListener('click',e=>{
       ui.pos=p; render(); break;
     }
     case 'place': if(isMine()&&S.phase==='defuse'){ ui.sheet=null; act('place',v,ui.pos); } break;
-    case 'fx-off': if(ui.boom){ const cut=ui.boom.until-Date.now(); ui.boom.until=0; if(ui.last&&cut>0) ui.last.until-=cut; } render(); schedule(); break;
+    case 'fx-off': clearTimeout(fxSndTimer); if(ui.boom){ const cut=ui.boom.until-Date.now(); ui.boom.until=0; if(ui.last&&cut>0) ui.last.until-=cut; } render(); schedule(); break;
     case 'fast': pref.fast=!pref.fast; save(); render(); schedule(); break;
     case 'sound': pref.sound=!soundOn(); save(); render(); if(soundOn()) SND.play(); break;
     case 'ask-new': ui.confirm='new'; render(); break;
