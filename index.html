@@ -866,7 +866,7 @@ function commit(){
 }
 /* Geluid en animatie bij een nieuwe zet: van jezelf, of binnengekomen van een andere telefoon */
 /* Wat andere spelers doen, laten we groot zien (uitgelichte kaart) en klein bij hun portret (tekstje) */
-const SPOT_MS=()=>pref.fast?1200:2400, BUB_MS=()=>pref.fast?1300:2600;
+const HOLD_MS=()=>pref.fast?1000:2000, SPOT_MS=()=>pref.fast?1200:2400, BUB_MS=()=>pref.fast?1300:2600;
 function bubble(i,txt){ if(i==null) return; ui.bub=ui.bub||{}; ui.bub[i]={txt,until:Date.now()+BUB_MS()}; }
 /* Wat er gebeurt: een kaartje in de balk onderin, net als de uitslag in Pierenworp */
 const TT=t=>TY[t].title;
@@ -893,6 +893,7 @@ function pendingEv(P){
 function spotlight(ev){
   const v=me(), by=ev.by, mineBy=by===v, nm=by!=null&&S.players[by]?S.players[by].name:'';
   let s=null;
+  if(mineBy) ui.last=null;
   switch(ev.k){
     case 'play': case 'nope':{
       const P=S.pending; if(!P) break;
@@ -1709,9 +1710,11 @@ function dockHTML(scr){
     }
     return `<div class="dock-in">${pre}${evHTML(pendingEv(P))}<div class="timer" role="progressbar" aria-label="Tijd om te reageren"><i style="--d:${left}ms;--from:${(left/dur*100).toFixed(1)}%"></i></div>${btns}</div>`;
   }
-  const last=ui.last&&ui.last.by!==v&&Date.now()-ui.last.at<9000?ui.last:null;
-  if(!isMine()) return `<div class="dock-in">${pre}${last?evHTML(last):''}${waitHTML(statusMsg())}</div>`;
-  let a=pre+(last&&Date.now()-last.at<4000?evHTML(last,true):'');
+  // Steeds één ding onderin: de laatste zet van een ander, óf jouw knop. Na een zet van een ander blijft die eerst even staan.
+  const last=ui.last&&ui.last.by!==v?ui.last:null;
+  if(!isMine()) return `<div class="dock-in">${pre}${last?evHTML(last):waitHTML(statusMsg())}</div>`;
+  if(last&&Date.now()-last.at<HOLD_MS()) return `<div class="dock-in">${pre}${evHTML(last)}</div>`;
+  let a=pre;
   if(S.phase==='play'){
     a+=`<p class="dock-msg" aria-live="polite">${S.turns>1?`<b>Jouw beurt</b> (nog ${S.turns} beurten).`:'<b>Jouw beurt.</b>'} Tik op een kaart om hem te spelen, of trek een kaart.</p>`;
     a+=`<button class="btn${ui.ping?' ping':''}" data-act="draw">Trek een kaart</button>`;
@@ -1752,7 +1755,7 @@ function render(){
   layer.innerHTML=ui.tour!=null?tourHTML():(ui.sheet&&ui.sheet.k==='rules')?rulesSheetHTML():(scr==='game'||scr==='over')?sheetHTML():'';
   fxEl.innerHTML=fxHTML();
   clearTimeout(fxTimer);
-  const pend=[ui.boom&&ui.boom.until-Date.now(),1300-(Date.now()-ui.stamp),700-(Date.now()-ui.shake),...Object.values(ui.bub||{}).map(b=>b.until-Date.now())].filter(x=>x>0);
+  const pend=[ui.last&&ui.last.at+HOLD_MS()-Date.now()+20,ui.boom&&ui.boom.until-Date.now(),1300-(Date.now()-ui.stamp),700-(Date.now()-ui.shake),...Object.values(ui.bub||{}).map(b=>b.until-Date.now())].filter(x=>x>0);
   if(pend.length) fxTimer=setTimeout(render,Math.min(...pend)+30);
   const tt=ON&&scr==='game'&&isMine()?'● Jouw beurt · Wombam!':'Wombam!';
   if(document.title!==tt) document.title=tt;
