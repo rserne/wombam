@@ -198,6 +198,7 @@ button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid
 .sheet.rulesheet p{color:var(--muted);text-align:left}
 .sheet.rulesheet .rules-body{padding-bottom:0}
 /* bladeren door je hand */
+.sheet p.alt{font-size:14px;line-height:1.4;color:#BFA88C;margin:6px 0 -2px;text-align:left}
 .flip{display:flex;align-items:center;justify-content:center;gap:14px;width:100%}
 .flip .nav{width:44px;height:44px;flex:none;border-radius:50%;border:2px solid #F6E8D2;background:transparent;color:#F6E8D2;display:grid;place-items:center}
 .flip .nav svg{width:22px;height:22px}
@@ -1466,9 +1467,17 @@ function sheetHTML(){
         if(t==='favor') acts.push(tg?`<button class="btn" data-act="pick-target" data-mode="favor">Speel Kateautje</button>`:'');
         else acts.push(`<button class="btn" data-act="play-one">Speel deze kaart</button>`);
       }
-      if(n>=2&&tg) acts.push(`<button class="btn${TY[t].kind==='cat'?'':' soft'}" data-act="pick-target" data-mode="pair">Speel 2 als paar: steel een kaart</button>`);
-      if(n>=3&&tg) acts.push(`<button class="btn soft" data-act="pick-target" data-mode="triple">Speel 3: eis een kaart op</button>`);
-      if(!acts.filter(Boolean).length){
+      const cat=TY[t].kind==='cat';
+      if(cat){
+        if(n>=2&&tg) acts.push(`<button class="btn" data-act="pick-target" data-mode="pair">Speel 2: steel een willekeurige kaart</button>`);
+        if(n>=3&&tg) acts.push(`<button class="btn soft" data-act="pick-target" data-mode="triple">Speel 3: eis een kaart op</button>`);
+      } else if(n>=2&&tg){
+        // ook actiekaarten mag je als paar of drietal spelen, maar dan vervalt hun gewone werking
+        acts.push(`<p class="alt">Je hebt er ${n}. Je mag ze ook samen spelen, net als combinatiekaarten. ${esc(TY[t].title)} doet dan niets: met 2 steel je blind een kaart${n>=3?', met 3 eis je een kaart op':''}.</p>`);
+        acts.push(`<button class="btn soft" data-act="pick-target" data-mode="pair">Speel 2 samen: steel een kaart</button>`);
+        if(n>=3) acts.push(`<button class="btn soft" data-act="pick-target" data-mode="triple">Speel 3 samen: eis een kaart op</button>`);
+      }
+      if(!acts.filter(x=>x&&x.startsWith('<button')).length){
         hint=t==='defuse'?'Deze kaart gebruik je vanzelf als je een Exploding Wombat trekt.'
           :t==='nope'?'Nope speel je als iemand anders een actie speelt.'
           :TY[t].kind==='cat'?(tg?'Je hebt er nog een nodig om een paar te spelen.':'Er is niemand meer om van te stelen.')
