@@ -197,6 +197,20 @@ button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid
 
 .sheet.rulesheet p{color:var(--muted);text-align:left}
 .sheet.rulesheet .rules-body{padding-bottom:0}
+/* bladeren door je hand */
+.flip{display:flex;align-items:center;justify-content:center;gap:14px;width:100%}
+.flip .nav{width:44px;height:44px;flex:none;border-radius:50%;border:2px solid #F6E8D2;background:transparent;color:#F6E8D2;display:grid;place-items:center}
+.flip .nav svg{width:22px;height:22px}
+.flip .nav:disabled{opacity:.25}
+.flip .where{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.flip .where span{font-size:14px;font-weight:800;color:#E6D3B6}
+.flip .tdots i{width:7px;height:7px}
+.flip .tdots i.on{width:20px}
+.slide-l{animation:slidel .28s cubic-bezier(.2,.9,.3,1.1) both}
+.slide-r{animation:slider .28s cubic-bezier(.2,.9,.3,1.1) both}
+@keyframes slidel{from{opacity:0;transform:translateX(60px) rotate(3deg)}}
+@keyframes slider{from{opacity:0;transform:translateX(-60px) rotate(-3deg)}}
+
 /* rondleiding */
 .tour{position:relative;gap:14px}
 .tour .skip{position:absolute;right:0;top:-6px;background:none;border:0;color:#E6D3B6;font-weight:800;font-size:14px;padding:10px 4px;text-decoration:underline;text-underline-offset:3px}
@@ -1427,6 +1441,14 @@ function tourHTML(){
 const rulesSheetHTML=()=>`<div class="ov" data-act="close-bg" role="dialog" aria-label="Spelregels"><div class="sheet rulesheet" style="background:var(--surface);color:var(--ink);border-radius:24px;padding:20px;align-items:stretch"><h2>Spelregels</h2>${rulesBody()}<div class="acts"><button class="btn soft" data-act="tour" style="color:var(--ink);border-color:var(--line)">Uitleg stap voor stap</button><button class="btn" data-act="close">Sluiten</button></div></div></div>`;
 
 /* ---------- vensters ---------- */
+/* Bladeren door je hand: elke soort kaart is één stap, gelijke kaarten tellen samen */
+function handTypes(v){ const out=[]; S.players[v].hand.forEach(c=>{ const t=tOf(c); if(!out.length||out[out.length-1].t!==t) out.push({t,c}); }); return out; }
+function flipCard(dir){
+  const sh=ui.sheet, v=me(); if(!sh||sh.k!=='card'||v==null||!S) return false;
+  const list=handTypes(v), i=list.findIndex(x=>x.t===tOf(sh.c)), j=i+dir;
+  if(i<0||j<0||j>=list.length) return false;
+  ui.sheet={k:'card',c:list[j].c}; ui.slide=dir>0?'slide-l':'slide-r'; render(); return true;
+}
 function sheetHTML(){
   const sh=ui.sheet; if(!sh||!S) return '';
   const v=me(), P=S.players[v]||null;
@@ -1457,7 +1479,13 @@ function sheetHTML(){
     } else if(S.phase==='react'&&t==='nope'&&E.canNope(S,v)){
       acts.push(`<button class="btn nope" data-act="nope" data-i="${v}">Nope!</button>`);
     } else hint=isMine()?'':'Je kunt deze kaart spelen als je aan de beurt bent.';
-    return `<div class="ov" data-act="close-bg" role="dialog" aria-label="${esc(TY[t].title)}"><div class="sheet">${cardHTML(t,1.16)}${hint?`<p>${hint}</p>`:''}<div class="acts">${acts.join('')}${back}</div></div></div>`;
+    const list=handTypes(v), i=list.findIndex(x=>x.t===t), sl=ui.slide||''; ui.slide=null;
+    const nav=list.length>1?`<div class="flip">
+      <button class="nav" data-act="flip" data-d="-1" ${i>0?'':'disabled'} aria-label="Vorige kaart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <div class="where"><span>${n>1?`${n}× in je hand · `:''}${i+1} van ${list.length}</span><div class="tdots" aria-hidden="true">${list.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')}</div></div>
+      <button class="nav" data-act="flip" data-d="1" ${i<list.length-1?'':'disabled'} aria-label="Volgende kaart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>`:'';
+    return `<div class="ov" data-act="close-bg" role="dialog" aria-label="${esc(TY[t].title)}"><div class="sheet" data-flip><div class="${sl}">${cardHTML(t,1.16)}</div>${nav}${hint?`<p>${hint}</p>`:''}<div class="acts">${acts.join('')}${back}</div></div></div>`;
   }
   if(sh.k==='target'){
     const title=sh.mode==='favor'?'Wie geeft jou een kaart?':sh.mode==='pair'?'Van wie steel je een kaart?':'Van wie eis je een kaart op?';
@@ -1648,7 +1676,7 @@ function cardsOfType(v,t,n){ return S.players[v].hand.filter(c=>tOf(c)===t).slic
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]'); if(!b||b.disabled) return;
   const a=b.dataset.act, v=me();
-  if((a==='close-bg'||a==='tour-bg')&&e.target!==b) return;     // alleen een tik naast het venster sluit het
+  if((a==='close-bg'||a==='tour-bg')&&(e.target!==b||Date.now()-swipeEat<400)) return;     // alleen een tik naast het venster sluit het
   switch(a){
     case 'seat': seats[+b.dataset.i].type=b.dataset.type; ui.err=''; save(); render(); break;
     case 'mode': ui.mode=b.dataset.m; pref.mode=ui.mode; ui.netErr=''; save(); render(); if(ui.mode==='online') warmUp(); break;
@@ -1662,6 +1690,7 @@ document.addEventListener('click',e=>{
     }
     case 'show': if(b.dataset.c){ ui.sheet={k:'show',t:tOf(b.dataset.c)}; render(); } break;
     case 'close': case 'close-bg': ui.sheet=null; render(); schedule(); break;
+    case 'flip': flipCard(+b.dataset.d); break;
     case 'help': ui.tour=0; render(); schedule(); break;
     case 'tour': ui.sheet=null; ui.tour=0; render(); schedule(); break;
     case 'tour-next': ui.tour=Math.min(TOUR.length-1,ui.tour+1); render(); break;
@@ -1749,16 +1778,18 @@ document.addEventListener('keydown',e=>{
     else if(e.key==='Escape') endTour();
     return;
   }
+  if(ui.sheet&&ui.sheet.k==='card'&&(e.key==='ArrowRight'||e.key==='ArrowLeft')){ flipCard(e.key==='ArrowRight'?1:-1); return; }
   if(e.key==='Escape'&&ui.sheet&&ui.sheet.k!=='place'){ ui.sheet=null; render(); schedule(); }
 });
 function endTour(silent){ ui.tour=null; if(!pref.toured){ pref.toured=true; save(); } if(!silent){ render(); schedule(); } }
 // vegen in de uitleg
-let swX=null, swY=0;
-document.addEventListener('touchstart',e=>{ if(ui.tour!=null&&e.touches.length===1){ swX=e.touches[0].clientX; swY=e.touches[0].clientY; } },{passive:true});
+let swX=null, swY=0, swipeEat=0;
+document.addEventListener('touchstart',e=>{ if((ui.tour!=null||(ui.sheet&&ui.sheet.k==='card'))&&e.touches.length===1){ swX=e.touches[0].clientX; swY=e.touches[0].clientY; } },{passive:true});
 document.addEventListener('touchend',e=>{
-  if(swX==null||ui.tour==null) return;
+  if(swX==null) return;
   const t=e.changedTouches[0], dx=t.clientX-swX, dy=t.clientY-swY; swX=null;
   if(Math.abs(dx)<50||Math.abs(dy)>Math.abs(dx)) return;
+  if(ui.tour==null){ if(ui.sheet&&ui.sheet.k==='card'){ swipeEat=Date.now(); flipCard(dx<0?1:-1); } return; }
   if(dx<0&&ui.tour<TOUR.length-1) ui.tour++; else if(dx>0&&ui.tour>0) ui.tour--; else return;
   render();
 },{passive:true});
