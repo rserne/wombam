@@ -867,7 +867,7 @@ function commit(){
 /* Geluid en animatie bij een nieuwe zet: van jezelf, of binnengekomen van een andere telefoon */
 /* Wat andere spelers doen, laten we groot zien (uitgelichte kaart) en klein bij hun portret (tekstje) */
 const HOLD_MS=()=>pref.fast?1000:2000, SPOT_MS=()=>pref.fast?1200:2400, BUB_MS=()=>pref.fast?1300:2600;
-function bubble(i,txt){ if(i==null) return; ui.bub=ui.bub||{}; ui.bub[i]={txt,until:Date.now()+BUB_MS()}; }
+function bubble(){}   // (tekstjes bij de portretten: alles staat nu onderin)
 /* Wat er gebeurt: een kaartje in de balk onderin, net als de uitslag in Pierenworp */
 const TT=t=>TY[t].title;
 function pendingEv(P){
@@ -1321,19 +1321,10 @@ function plHTML(i,opts){
   if(!opts.pick&&S.phase!=='over'&&E.needs(S)===i) cls.push('cur');
   if(!opts.pick&&S.phase==='react'&&S.pending&&S.pending.lastBy===i) cls.push('cur');
   if(p.out) cls.push('out');
-  let st='';
-  if(p.out) st='Ontploft';
-  else if(S.phase==='over') st='';
-  else if(S.cur===i&&S.turns>1) st=`Nog ${S.turns} beurten`;
-  else if(S.cur===i) st='Aan de beurt';
-  const bb=ui.bub&&ui.bub[i]&&ui.bub[i].until>Date.now()?ui.bub[i].txt:'';
-  if(!opts.pick&&!p.out&&S.phase!=='over'){
-    if(bb) st=`<em class="bub">${esc(bb)}</em>`;
-    else if(p.ai&&E.needs(S)===i) st=`<em class="think">denkt na<i>.</i><i>.</i><i>.</i></em>`;
-  }
+  const st=p.out&&!opts.pick?'Ontploft':'';
   const tag=opts.pick?'button':'div';
   const attrs=opts.pick?`data-act="target" data-i="${i}" aria-label="${esc(p.name)}, ${p.hand.length} kaarten"`:'';
-  return `<${tag} class="${cls.join(' ')}" ${attrs}><div class="av"><img src="${faceOf(p)}" alt="">${p.out?'':`<span class="star" aria-label="${p.hand.length} kaarten">${p.hand.length}</span>`}</div><span class="nm">${esc(p.name)}</span><span class="st">${st}</span></${tag}>`;
+  return `<${tag} class="${cls.join(' ')}" ${attrs}><div class="av"><img src="${faceOf(p)}" alt="">${p.out?'':`<span class="star" aria-label="${p.hand.length} kaarten">${p.hand.length}</span>`}</div><span class="nm">${esc(p.name)}</span>${st?`<span class="st">${st}</span>`:''}</${tag}>`;
 }
 function headerHTML(kind){
   const snd=soundOn();
@@ -1779,7 +1770,7 @@ function render(){
   morph(layer,ui.tour!=null?tourHTML():(ui.sheet&&ui.sheet.k==='rules')?rulesSheetHTML():(scr==='game'||scr==='over')?sheetHTML():'');
   morph(fxEl,fxHTML());
   clearTimeout(fxTimer);
-  const pend=[ui.last&&ui.last.at+HOLD_MS()-Date.now()+20,ui.boom&&ui.boom.until-Date.now(),1300-(Date.now()-ui.stamp),700-(Date.now()-ui.shake),...Object.values(ui.bub||{}).map(b=>b.until-Date.now())].filter(x=>x>0);
+  const pend=[ui.last&&ui.last.at+HOLD_MS()-Date.now()+20,ui.boom&&ui.boom.until-Date.now(),1300-(Date.now()-ui.stamp),700-(Date.now()-ui.shake)].filter(x=>x>0);
   if(pend.length) fxTimer=setTimeout(render,Math.min(...pend)+30);
   const tt=ON&&scr==='game'&&isMine()?'● Jouw beurt · Wombam!':'Wombam!';
   if(document.title!==tt) document.title=tt;
