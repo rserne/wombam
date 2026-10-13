@@ -1251,8 +1251,8 @@ function rulesBody(){
     <p><b>Doel:</b> blijf als laatste over. Wie een Exploding Wombat trekt en geen Ontmantel heeft, ontploft en ligt uit het spel.</p>
     <ol>
       <li>Iedereen begint met 7 kaarten en 1 Ontmantel. In de trekstapel zitten Exploding Wombats: één minder dan het aantal spelers.</li>
-      <li>In je beurt speel je zoveel kaarten als je wilt, of geen. Daarna trek je één kaart. Daarmee eindigt je beurt.</li>
-      <li>Trek je een Exploding Wombat en heb je een Ontmantel? Dan stop je hem in het geheim terug in de stapel, waar je maar wilt.</li>
+      <li>In je beurt speel je eerst zoveel kaarten als je wilt, of geen. Daarna trek je één kaart. Daarmee eindigt je beurt: na het trekken kun je niets meer spelen.</li>
+      <li>Trek je een Exploding Wombat, dan helpt alleen nog een Ontmantel; Nope, Sla Over en Aanval niet meer. Met een Ontmantel stop je de wombat in het geheim terug in de stapel, waar je maar wilt.</li>
       <li><b>Aanval:</b> je trekt niet, en de volgende moet 2 beurten spelen. Ben je zelf aangevallen en speel je Aanval, dan krijgt de volgende jouw resterende beurten plus 2.</li>
       <li><b>Sla Over</b> beëindigt één beurt zonder te trekken. Na een Aanval is dat één van je twee beurten.</li>
       <li><b>Nope:</b> na elke actie heeft iedereen een paar seconden om Nope te spelen, ook als je niet aan de beurt bent. Een Nope kun je weer tegenhouden met een Nope.</li>
@@ -1396,8 +1396,8 @@ function handoffHTML(){
 const TOUR=[
   {v:['ek'],t:'Blijf als laatste over',p:'In de stapel zitten <b>Exploding Wombats</b>. Trek je er een en kun je hem niet onschadelijk maken, dan ontplof je en lig je uit het spel. Wie als laatste overblijft, wint.'},
   {v:['back','defuse'],t:'Zo begint het',p:'Iedereen krijgt 7 kaarten en 1 <b>Ontmantel</b>. In de trekstapel zitten Exploding Wombats: één minder dan er spelers zijn. Zo blijft er uiteindelijk precies één speler over.'},
-  {v:['back'],t:'Jouw beurt',p:'Speel zoveel kaarten als je wilt, of helemaal geen. Daarna <b>trek je één kaart</b>. Daarmee is je beurt voorbij. Hoe minder je trekt, hoe kleiner de kans dat je ontploft.'},
-  {v:['ek','>','defuse'],t:'Ontmantel',p:'Trek je een Exploding Wombat en heb je een Ontmantel? Die gebruikt het spel vanzelf. Daarna stop je de wombat <b>in het geheim</b> terug in de stapel, waar je maar wilt: bovenop voor de volgende speler, of diep weg.'},
+  {v:['back'],t:'Jouw beurt',p:'Eerst speel je zoveel kaarten als je wilt, of helemaal geen. Daarna <b>trek je één kaart</b>, en dan is je beurt voorbij. Na het trekken kun je niets meer spelen: kijk en ontsnap dus <b>vóór</b> je trekt.'},
+  {v:['ek','>','defuse'],t:'Ontmantel',p:'Trek je een Exploding Wombat, dan is alleen een Ontmantel nog je redding. Die gebruikt het spel vanzelf. Daarna stop je de wombat <b>in het geheim</b> terug in de stapel, waar je maar wilt: bovenop voor de volgende speler, of diep weg.'},
   {v:['skip','attack'],t:'Ontsnappen',p:'<b>Sla Over:</b> je beurt is voorbij zonder dat je trekt. <b>Aanval:</b> je trekt ook niet, en de volgende moet 2 beurten achter elkaar spelen. Word je zelf aangevallen, dan kun je terugslaan: de volgende krijgt jouw beurten plus 2.'},
   {v:['future','shuffle'],t:'Vooruitkijken',p:'Met <b>Voorspel de Toekomst</b> zie je in het geheim de bovenste 3 kaarten. Ligt er een Exploding Wombat bovenop? Ontsnap, of speel <b>Schud</b> om de stapel door elkaar te gooien.'},
   {v:['favor'],t:'Kateautje',p:'Kies een speler. Die moet je <b>één kaart geven</b>, maar mag zelf kiezen welke.'},
