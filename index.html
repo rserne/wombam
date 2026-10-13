@@ -866,7 +866,10 @@ function commit(){
 }
 /* Geluid en animatie bij een nieuwe zet: van jezelf, of binnengekomen van een andere telefoon */
 /* Wat andere spelers doen, laten we groot zien (uitgelichte kaart) en klein bij hun portret (tekstje) */
-const HOLD_MS=()=>pref.fast?1000:2000, SPOT_MS=()=>pref.fast?1200:2400, BUB_MS=()=>pref.fast?1300:2600;
+/* Alles op één tijdlijn: eerst het groot effect (BOEM of Pfoe), dan blijft het kaartje onderin nog even staan,
+   en pas daarna komt de volgende zet. Dat geldt voor de computer én voor je eigen zetten. */
+const SPOT_MS=()=>pref.fast?1200:2400, OWN_MS=()=>pref.fast?700:1400,
+  OVL_MS=k=>(k==='boom'?3000:2400)*(pref.fast?0.6:1);
 function bubble(){}   // (tekstjes bij de portretten: alles staat nu onderin)
 /* Wat er gebeurt: een kaartje in de balk onderin, net als de uitslag in Pierenworp */
 const TT=t=>TY[t].title;
@@ -892,8 +895,7 @@ function pendingEv(P){
 }
 function spotlight(ev){
   const v=me(), by=ev.by, mineBy=by===v, nm=by!=null&&S.players[by]?S.players[by].name:'';
-  let s=null;
-  if(mineBy) ui.last=null;
+  let s=null, own=null;
   switch(ev.k){
     case 'play': case 'nope':{
       const P=S.pending; if(!P) break;
@@ -903,18 +905,32 @@ function spotlight(ev){
     }
     case 'attack': s=ev.to===v?{cards:['attack'],title:'Je bent aangevallen!',sub:`Jij moet nu ${ev.n} beurten spelen`}:{cards:['attack'],title:`${S.players[ev.to].name} moet ${ev.n} beurten spelen`,sub:`Aanval van ${who(by,false)}`}; bubble(ev.to,`moet ${ev.n} beurten`); break;
     case 'steal': s={back:true,title:ev.from===v?`${nm} pakt een kaart van jou`:`${who(by,true)} ${mineBy?'pakt':'pakt'} een kaart van ${whom(ev.from)}`,sub:ev.from===v?'Welke kaart, zie je bovenin':''}; if(mineBy) s=null; bubble(by,ev.from===v?'steelt van jou':`steelt van ${S.players[ev.from].name}`); break;
-    case 'draw': if(!mineBy){ s={back:true,title:`${nm} trekt een kaart`,sub:S.turns>1&&S.cur===by?`Nog ${S.turns} beurten`:''}; bubble(by,'trekt een kaart'); } break;
-    case 'skip': if(!mineBy){ s={cards:['skip'],title:`${nm} slaat een beurt over`,sub:'zonder te trekken'}; bubble(by,'slaat over'); } break;
+    case 'draw':
+      if(!mineBy){ s={back:true,title:`${nm} trekt een kaart`,sub:S.turns>1&&S.cur===by?`Nog ${S.turns} beurten`:''}; break; }
+      { const ib=S.players[v].inbox, x=ib[ib.length-1];
+        const c=x&&x.kind==='drew'&&x.n>(ui.seen[v]||0)?x.cards[0]:null;
+        const t=c&&c.split('#')[0];
+        own=c?{cards:[t],title:`Je trekt ${TY[t].title}`,sub:S.cur===v&&S.turns>1?`Nog ${S.turns} beurten`:''}
+             :{back:true,title:'Je trekt een kaart',sub:''}; }
+      break;
+    case 'skip': if(!mineBy){ s={cards:['skip'],title:`${nm} slaat een beurt over`,sub:'zonder te trekken'}; bubble(by,'slaat over'); }
+      else own={cards:['skip'],title:'Je slaat een beurt over',sub:'zonder te trekken'}; break;
     case 'shuffle': s={cards:['shuffle'],title:mineBy?'De stapel is geschud':`${nm} schudt de trekstapel`,sub:''}; bubble(by,'schudt de stapel'); if(mineBy) s=null; break;
     case 'see': if(!mineBy){ s={cards:['future'],title:`${nm} kijkt in de toekomst`,sub:'en ziet de bovenste 3 kaarten'}; bubble(by,'kijkt in de toekomst'); } break;
     case 'cancel': s={cards:['nope'],title:by===v?'Je actie gaat niet door':`De actie van ${nm} gaat niet door`,sub:''}; bubble(by,'gaat niet door'); break;
     case 'give': if(!mineBy){ s={back:true,title:`${nm} geeft ${whom(ev.to)} een kaart`,sub:''}; bubble(by,`geeft ${whom(ev.to)} een kaart`); } break;
     case 'favor': if(ev.to!==v){ s={cards:['favor'],title:`${S.players[ev.to].name} kiest een kaart`,sub:`voor ${whom(by)}`}; bubble(ev.to,'kiest een kaart…'); } break;
-    case 'defuse': if(!mineBy) s={cards:['defuse'],title:`${nm} ontmantelt een Exploding Wombat`,sub:'en stopt hem zo terug in de stapel'}; break;
-    case 'place': if(!mineBy){ s={cards:['ek'],title:`${nm} legt de wombat terug`,sub:'Waar? Dat weet alleen '+nm}; bubble(by,'legt de wombat terug'); } break;
-    case 'boom': s={cards:['ek'],title:mineBy?'Je bent ontploft':`${nm} is ontploft`,sub:''}; break;
+    case 'defuse': if(!mineBy) s={cards:['defuse'],title:`${nm} ontmantelt een Exploding Wombat`,sub:'en stopt hem zo terug in de stapel'};
+      else own={cards:['defuse'],title:'Je ontmantelt de Exploding Wombat',sub:'Kies zo waar je hem terugstopt'}; break;
+    case 'place': if(!mineBy){ s={cards:['ek'],title:`${nm} legt de wombat terug`,sub:'Waar? Dat weet alleen '+nm}; bubble(by,'legt de wombat terug'); }
+      else own={cards:['ek'],title:'Je stopt de wombat terug',sub:'Waar? Dat weet alleen jij'}; break;
+    case 'boom': if(mineBy) own={cards:['ek'],title:'Je bent ontploft',sub:''}; else s={cards:['ek'],title:`${nm} is ontploft`,sub:''}; break;
   }
-  if(s){ s.at=Date.now(); s.until=s.at+SPOT_MS(); s.by=by; ui.last=s; }
+  // Na een groot effect (BOEM of Pfoe) blijft het kaartje onderin nog een volle periode staan.
+  const now=Date.now(), ovl=ev.k==='boom'||ev.k==='defuse'?OVL_MS(ev.k):0;
+  if(s){ s.at=now; s.until=now+ovl+SPOT_MS(); s.by=by; ui.last=s; }
+  else if(own){ own.at=now; own.until=now+ovl+OWN_MS(); own.by=by; own.self=true; ui.last=own; }
+  else if(mineBy) ui.last=null;
 }
 function fx(ev){
   if(!ev) return;
@@ -924,8 +940,8 @@ function fx(ev){
     case 'play': SND.play(); break;
     case 'nope': SND.nope(); if(ev.by===me()) ui.stamp=now; break;
     case 'draw': SND.draw(); break;
-    case 'boom': SND.boom(); ui.boom={by:ev.by,until:now+2600,saved:false}; break;
-    case 'defuse': SND.defuse(); ui.boom={by:ev.by,until:now+1900,saved:true}; break;
+    case 'boom': SND.boom(); ui.boom={by:ev.by,until:now+OVL_MS('boom'),saved:false}; break;
+    case 'defuse': SND.defuse(); ui.boom={by:ev.by,until:now+OVL_MS('defuse'),saved:true}; break;
     case 'shuffle': SND.shuffle(); ui.shake=now; break;
     case 'attack': SND.attack(); break;
     case 'cancel': SND.cancel(); break;
@@ -966,7 +982,7 @@ function schedule(){
   const n=E.needs(S); if(n==null) return;
   const p=S.players[n];
   if(p.ai){
-    const busy=ui.last&&ui.last.until>Date.now()?ui.last.until-Date.now():0;
+    const busy=Math.max(0,(ui.last?ui.last.until:0)-Date.now(),(ui.boom?ui.boom.until:0)-Date.now());
     const d=Math.max(({play:1900,favor:1700,defuse:1700}[S.phase]||1400)*sp,busy+(pref.fast?150:450));
     if(runAI) aiTimer=setTimeout(aiStep,d);
     // online speelt de starter voor de computer; valt die weg, dan neemt een andere telefoon het over
@@ -1013,7 +1029,8 @@ function pumpInbox(){
       ui.sheet={k:'see',cards:x.cards}; ui.seen[v]=x.n; return;
     }
     ui.seen[v]=x.n;
-    if(x.kind==='drew'){ ui.newCard=x.cards[0]; ui.newAt=Date.now(); }
+    // wat je zelf trekt, staat al onderin
+    if(x.kind==='drew'){ ui.newCard=x.cards[0]; ui.newAt=Date.now(); continue; }
     toast(`${miniHTML(x.cards[0])}<span>${esc(x.txt)}</span>`);
   }
 }
@@ -1702,9 +1719,10 @@ function dockHTML(scr){
     return `<div class="dock-in">${pre}${evHTML({...pendingEv(P),k:P.k})}<div data-k="t${P.k}" class="timer" role="progressbar" aria-label="Tijd om te reageren"><i style="--d:${left}ms;--from:${(left/dur*100).toFixed(1)}%"></i></div>${btns}</div>`;
   }
   // Steeds één ding onderin: de laatste zet van een ander, óf jouw knop. Na een zet van een ander blijft die eerst even staan.
-  const last=ui.last&&ui.last.by!==v?ui.last:null;
+  // Je eigen kaartjes (wat je trekt) ziet alleen jij; zetten van anderen ziet iedereen.
+  const last=ui.last&&(!ui.last.self||ui.last.by===v)?ui.last:null;
   if(!isMine()) return `<div class="dock-in">${pre}${last?evHTML(last):waitHTML(statusMsg())}</div>`;
-  if(last&&Date.now()-last.at<HOLD_MS()) return `<div class="dock-in">${pre}${evHTML(last)}</div>`;
+  if(last&&Date.now()<last.until) return `<div class="dock-in">${pre}${evHTML(last)}</div>`;
   let a=pre;
   if(S.phase==='play'){
     a+=`<p class="dock-msg" aria-live="polite">${S.turns>1?`<b>Jouw beurt</b> (nog ${S.turns} beurten).`:'<b>Jouw beurt.</b>'} Tik op een kaart om hem te spelen, of trek een kaart.</p>`;
@@ -1731,7 +1749,9 @@ function checkSheet(){
   else if((sh.k==='target'||sh.k==='name')&&!(isMine()&&S.phase==='play'&&P&&sh.cards.every(c=>P.hand.includes(c)))) ui.sheet=null;
   else if(sh.k==='place'&&!(isMine()&&S.phase==='defuse')) ui.sheet=null;
   }
-  if(!ui.sheet&&isMine()&&S.phase==='defuse'){ ui.sheet={k:'place'}; ui.pos=Math.min(S.turns>1?S.turns-1:0,S.deck.length); }
+  // het terugleg-venster pas openen als Pfoe en het kaartje onderin klaar zijn
+  const busy=(ui.boom&&Date.now()<ui.boom.until)||(ui.last&&ui.last.self&&Date.now()<ui.last.until);
+  if(!ui.sheet&&!busy&&isMine()&&S.phase==='defuse'){ ui.sheet={k:'place'}; ui.pos=Math.min(S.turns>1?S.turns-1:0,S.deck.length); }
 }
 /* Alleen bijwerken wat echt verandert: zo blijven animaties en afbeeldingen rustig staan.
    Elementen met data-k worden vervangen als de sleutel verandert (dan speelt hun animatie opnieuw)
@@ -1770,7 +1790,7 @@ function render(){
   morph(layer,ui.tour!=null?tourHTML():(ui.sheet&&ui.sheet.k==='rules')?rulesSheetHTML():(scr==='game'||scr==='over')?sheetHTML():'');
   morph(fxEl,fxHTML());
   clearTimeout(fxTimer);
-  const pend=[ui.last&&ui.last.at+HOLD_MS()-Date.now()+20,ui.boom&&ui.boom.until-Date.now(),1300-(Date.now()-ui.stamp),700-(Date.now()-ui.shake)].filter(x=>x>0);
+  const pend=[ui.last&&ui.last.until-Date.now()+20,ui.boom&&ui.boom.until-Date.now(),1300-(Date.now()-ui.stamp),700-(Date.now()-ui.shake)].filter(x=>x>0);
   if(pend.length) fxTimer=setTimeout(render,Math.min(...pend)+30);
   const tt=ON&&scr==='game'&&isMine()?'● Jouw beurt · Wombam!':'Wombam!';
   if(document.title!==tt) document.title=tt;
@@ -1846,7 +1866,7 @@ document.addEventListener('click',e=>{
       ui.pos=p; render(); break;
     }
     case 'place': if(isMine()&&S.phase==='defuse'){ ui.sheet=null; act('place',v,ui.pos); } break;
-    case 'fx-off': if(ui.boom) ui.boom.until=0; render(); break;
+    case 'fx-off': if(ui.boom){ const cut=ui.boom.until-Date.now(); ui.boom.until=0; if(ui.last&&cut>0) ui.last.until-=cut; } render(); schedule(); break;
     case 'fast': pref.fast=!pref.fast; save(); render(); schedule(); break;
     case 'sound': pref.sound=!soundOn(); save(); render(); if(soundOn()) SND.play(); break;
     case 'ask-new': ui.confirm='new'; render(); break;
