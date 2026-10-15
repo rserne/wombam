@@ -17,6 +17,8 @@ Wat waar vandaan komt:
                                  img/face-<soort>.webp (portret voor de spelers)
     bron/achterkant.svg       -> img/back.svg
     bron/ster.svg             -> img/star.svg
+    bron/wombat-blij.svg      -> img/blij.svg (uitslag als je wint; achtergrond doorzichtig)
+    bron/wombat-sip.svg       -> img/sip.svg  (uitslag als je verliest)
 """
 import re, shutil, sys
 from pathlib import Path
@@ -45,6 +47,22 @@ def kaarten():
             face.resize((192, 192), Image.LANCZOS).save(IMG / f'face-{s}.webp', quality=84, method=6)
     shutil.copy(BRON / 'achterkant.svg', IMG / 'back.svg')
     shutil.copy(BRON / 'ster.svg', IMG / 'star.svg')
+
+
+def wombats():
+    """De twee losse wombats: achtergrond weg en getallen afronden, zodat het bestand een stuk kleiner wordt."""
+    for bron, doel in (('wombat-blij.svg', 'blij.svg'), ('wombat-sip.svg', 'sip.svg')):
+        s = (BRON / bron).read_text(encoding='utf-8')
+        m = re.search(r'<path[^>]*fill="(rgb\([^)]*\))" d="M 0 0 L 2048 0 L 2048 2048 L 0 2048 L 0 0 z"/>\n?', s)
+        if m:
+            s = s.replace(m.group(0), '')                            # het vlak achter de wombat
+            s = s.replace(f'fill="{m.group(1)}"', 'fill="none"')     # gaatjes in dezelfde kleur
+        s = re.sub(r'(\d+\.\d)\d+', r'\1', s)                        # één decimaal is genoeg
+        s = s.replace(' transform="translate(0,0)"', '')
+        s = re.sub(r' class="stop\d"', '', s)
+        s = re.sub(r' (width|height)="1254"', '', s).replace(' style="display: block;"', '').replace(' preserveAspectRatio="none"', '')
+        s = re.sub(r'\n\s*', '\n', s)
+        (IMG / doel).write_text(s, encoding='utf-8')
 
 
 def iconen():
@@ -102,6 +120,7 @@ def voorbeeld():
 
 if __name__ == '__main__':
     kaarten()
+    wombats()
     iconen()
     service_worker('--zelfde' not in sys.argv and '--voorbeeld' not in sys.argv)
     if '--voorbeeld' in sys.argv:

@@ -1,7 +1,7 @@
 // Wombam! service worker. Verhoog CACHE bij elke nieuwe versie (build.py doet dat vanzelf).
-const CACHE='wombam-v20';
+const CACHE='wombam-v21';
 const EXT='wombam-extern';   // lettertypen en Firebase-software: blijven bewaard bij een nieuwe versie
-const ASSETS=['./','index.html','manifest.webmanifest','icon-192.png','icon-512.png','icon-maskable-512.png','apple-touch-icon.png','favicon.ico','favicon-32.png','img/attack.webp','img/back.svg','img/beard.webp','img/defuse.webp','img/ek.webp','img/face-beard.webp','img/face-future.webp','img/face-melon.webp','img/face-nope.webp','img/face-skip.webp','img/face-taco.webp','img/favor.webp','img/future.webp','img/melon.webp','img/nope.webp','img/potato.webp','img/rainbow.webp','img/shuffle.webp','img/skip.webp','img/star.svg','img/taco.webp'];
+const ASSETS=['./','index.html','manifest.webmanifest','icon-192.png','icon-512.png','icon-maskable-512.png','apple-touch-icon.png','favicon.ico','favicon-32.png','img/attack.webp','img/back.svg','img/beard.webp','img/blij.svg','img/defuse.webp','img/ek.webp','img/face-beard.webp','img/face-future.webp','img/face-melon.webp','img/face-nope.webp','img/face-skip.webp','img/face-taco.webp','img/favor.webp','img/future.webp','img/melon.webp','img/nope.webp','img/potato.webp','img/rainbow.webp','img/shuffle.webp','img/sip.svg','img/skip.webp','img/star.svg','img/taco.webp'];
 
 // Nieuwe versie downloaden, maar wachten tot de speler op 'Vernieuwen' tikt.
 self.addEventListener('install',e=>{

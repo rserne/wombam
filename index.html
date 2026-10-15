@@ -289,6 +289,15 @@ button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid
 .hero{display:flex;flex-direction:column;gap:10px}
 .hero h2{font-family:var(--f-display);font-weight:400;font-size:clamp(28px,8vw,40px);line-height:1.05;margin:0;text-wrap:balance}
 .hero h2 em{font-style:normal;color:var(--accent)}
+.hero.uitslag{align-items:center;text-align:center;gap:6px}
+.hero.uitslag .label{margin:0}
+.hero.uitslag p.sub{margin:0;color:var(--muted);font-weight:700}
+.mood{width:min(230px,58vw);height:auto;margin:-6px 0 2px;filter:drop-shadow(0 8px 10px rgba(30,18,11,.18))}
+.mood.blij{animation:juich 1.1s ease-in-out infinite alternate;transform-origin:50% 95%}
+.mood.sip{animation:sip 3.2s ease-in-out infinite;transform-origin:50% 95%}
+@keyframes juich{from{transform:translateY(0) rotate(-2deg)}to{transform:translateY(-10px) rotate(2deg)}}
+@keyframes sip{0%,100%{transform:rotate(0)}50%{transform:rotate(-2.5deg) translateY(2px)}}
+@media (prefers-reduced-motion:reduce){.mood.blij,.mood.sip{animation:none}}
 .lede{margin:0;font-size:16px;color:var(--muted);max-width:44ch;text-wrap:pretty}
 .heroart{display:flex;justify-content:center;gap:0;margin:4px 0 -4px}
 .heroart .cbox{margin:0 -14px}
@@ -1506,9 +1515,12 @@ function overHTML(){
   const v=me(), win=S.players[S.winner];
   const youWin=v!=null&&S.winner===v&&(ON||humans().length===1||true);
   const head=youWin?'Je hebt <em>gewonnen!</em>':`<em>${esc(win.name)}</em> wint!`;
+  // juichende wombat als jij wint (of samen op één telefoon een mens wint), anders een sippe
+  const blij=youWin||(!ON&&humans().length>1&&!win.ai);
+  const sub=youWin?'Jij bent als laatste overgebleven.':v!=null&&!blij?'Je bent ontploft. Volgende keer beter!':'';
   const rows=order.map((r,k)=>`<div class="prow${r.i===S.winner?' win':''}"><span class="place">${k+1}</span><img src="${faceOf(r.p)}" alt=""><div class="who"><div class="name">${esc(r.p.name)}${v===r.i?' (jij)':''}</div><div class="meta">${r.i===S.winner?'Als laatste overgebleven':'Ontploft'}</div></div></div>`).join('');
   return headerHTML('over')+`
-  <section class="hero"><p class="label">Uitslag</p><h2>${head}</h2></section>
+  <section class="hero uitslag"><img data-k="mood${blij?1:0}" class="mood ${blij?'blij':'sip'}" src="${SRC(blij?'img/blij.svg':'img/sip.svg')}" alt="${blij?'Juichende wombat':'Sippe wombat'}"><p class="label">Uitslag</p><h2>${head}</h2>${sub?`<p class="sub">${sub}</p>`:''}</section>
   <div class="podium">${rows}</div>`;
 }
 function handoffHTML(){
