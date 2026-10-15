@@ -17,12 +17,14 @@ Wat waar vandaan komt:
                                  img/face-<soort>.webp (portret voor de spelers)
     bron/achterkant.svg       -> img/back.svg
     bron/ster.svg             -> img/star.svg
-    bron/wombat-blij.svg      -> img/blij.svg (uitslag als je wint; achtergrond doorzichtig)
-    bron/wombat-sip.svg       -> img/sip.svg  (uitslag als je verliest)
+    bron/wombat-blij.svg      -> img/blij.svg (uitslag als je wint: zwaait, springt en knippert)
+    bron/wombat-sip.svg       -> img/sip.svg  (uitslag als je verliest: zucht, knippert en huilt)
+                                 De beweging staat in animatie.py.
 """
 import re, shutil, sys
 from pathlib import Path
 from PIL import Image
+from animatie import animeer, BLIJ, SIP
 
 ROOT = Path(__file__).resolve().parent
 BRON, IMG = ROOT / 'bron', ROOT / 'img'
@@ -51,7 +53,7 @@ def kaarten():
 
 def wombats():
     """De twee losse wombats: achtergrond weg en getallen afronden, zodat het bestand een stuk kleiner wordt."""
-    for bron, doel in (('wombat-blij.svg', 'blij.svg'), ('wombat-sip.svg', 'sip.svg')):
+    for bron, doel, cfg in (('wombat-blij.svg', 'blij', BLIJ), ('wombat-sip.svg', 'sip', SIP)):
         s = (BRON / bron).read_text(encoding='utf-8')
         m = re.search(r'<path[^>]*fill="(rgb\([^)]*\))" d="M 0 0 L 2048 0 L 2048 2048 L 0 2048 L 0 0 z"/>\n?', s)
         if m:
@@ -62,7 +64,7 @@ def wombats():
         s = re.sub(r' class="stop\d"', '', s)
         s = re.sub(r' (width|height)="1254"', '', s).replace(' style="display: block;"', '').replace(' preserveAspectRatio="none"', '')
         s = re.sub(r'\n\s*', '\n', s)
-        (IMG / doel).write_text(s, encoding='utf-8')
+        (IMG / f'{doel}.svg').write_text(animeer(s, cfg, doel), encoding='utf-8')
 
 
 def iconen():

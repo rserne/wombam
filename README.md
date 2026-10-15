@@ -20,6 +20,7 @@ De app is een PWA: je zet hem op het beginscherm van je telefoon, en na het eers
 | `favicon.ico`, `favicon-32.png` | Icoontje in browsertabbladen en favorieten |
 | `bron/` | De originele tekeningen en het icoon, waaruit `build.py` alles maakt |
 | `build.py` | Bouwscript: maakt de afbeeldingen en iconen en werkt `sw.js` bij |
+| `animatie.py` | Laat de juichende en de sippe wombat op het uitslagscherm bewegen (gebruikt door `build.py`) |
 | `firebase-regels.json` | De regels voor de Realtime Database |
 | `test/` | Regeltests, gesimuleerde potjes en schermtests |
 
