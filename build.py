@@ -51,19 +51,23 @@ def kaarten():
     shutil.copy(BRON / 'ster.svg', IMG / 'star.svg')
 
 
+def schoon(s):
+    """Achtergrond weg en getallen afronden, zodat het bestand een stuk kleiner wordt."""
+    m = re.search(r'<path[^>]*fill="(rgb\([^)]*\))" d="M 0 0 L 2048 0 L 2048 2048 L 0 2048 L 0 0 z"/>\n?', s)
+    if m:
+        s = s.replace(m.group(0), '')                            # het vlak achter de wombat
+        s = s.replace(f'fill="{m.group(1)}"', 'fill="none"')     # gaatjes in dezelfde kleur
+    s = re.sub(r'(\d+\.\d)\d+', r'\1', s)                        # één decimaal is genoeg
+    s = s.replace(' transform="translate(0,0)"', '')
+    s = re.sub(r' class="stop\d"', '', s)
+    s = re.sub(r' (width|height)="1254"', '', s).replace(' style="display: block;"', '').replace(' preserveAspectRatio="none"', '')
+    return re.sub(r'\n\s*', '\n', s)
+
+
 def wombats():
-    """De twee losse wombats: achtergrond weg en getallen afronden, zodat het bestand een stuk kleiner wordt."""
+    """De twee losse wombats voor de uitslag, met beweging (zie animatie.py)."""
     for bron, doel, cfg in (('wombat-blij.svg', 'blij', BLIJ), ('wombat-sip.svg', 'sip', SIP)):
-        s = (BRON / bron).read_text(encoding='utf-8')
-        m = re.search(r'<path[^>]*fill="(rgb\([^)]*\))" d="M 0 0 L 2048 0 L 2048 2048 L 0 2048 L 0 0 z"/>\n?', s)
-        if m:
-            s = s.replace(m.group(0), '')                            # het vlak achter de wombat
-            s = s.replace(f'fill="{m.group(1)}"', 'fill="none"')     # gaatjes in dezelfde kleur
-        s = re.sub(r'(\d+\.\d)\d+', r'\1', s)                        # één decimaal is genoeg
-        s = s.replace(' transform="translate(0,0)"', '')
-        s = re.sub(r' class="stop\d"', '', s)
-        s = re.sub(r' (width|height)="1254"', '', s).replace(' style="display: block;"', '').replace(' preserveAspectRatio="none"', '')
-        s = re.sub(r'\n\s*', '\n', s)
+        s = schoon((BRON / bron).read_text(encoding='utf-8'))
         (IMG / f'{doel}.svg').write_text(animeer(s, cfg, doel), encoding='utf-8')
 
 
