@@ -1,34 +1,13 @@
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="-120 -420 2288 2430"><style>
-/* zuchten (langzaam) en twee keer kort snikken */
-.rek{transform-origin:1010px 1935px;animation:zucht 4.8s infinite ease-in-out}
-@keyframes zucht{
- 0%{transform:scale(1,1)}
- 30%{transform:scale(1.015,1.035)}
- 52%{transform:scale(1.02,.955)}
- 62%{transform:scale(1,1)}
- 66%{transform:scale(1,1.02) translateY(-10px)}
- 69%{transform:scale(1,.99)}
- 73%{transform:scale(1,1.02) translateY(-10px)}
- 77%,100%{transform:scale(1,1)}}
-.lid{transform:scaleY(0);animation:knipper 4.8s infinite}
-@keyframes knipper{0%,40%,100%{transform:scaleY(0)}45%,58%{transform:scaleY(1)}63%{transform:scaleY(0)}}
-.traan{opacity:0;animation:3.2s ease-in infinite}
-.t0{animation-name:traan0}
-.t1{animation-name:traan1;animation-delay:-1.6s}
-.spoor{stroke-dasharray:100;stroke-dashoffset:100;opacity:0;animation:spoor 3.2s ease-in infinite}
-.s1{animation-delay:-1.6s}
-@keyframes spoor{0%,25%{stroke-dashoffset:100;opacity:0}30%{opacity:.75}72%{stroke-dashoffset:0;opacity:.75}100%{stroke-dashoffset:0;opacity:0}}
-.wolk{animation:wolk 3.6s ease-in-out infinite}
-@keyframes wolk{0%,100%{transform:translate(-14px,0)}50%{transform:translate(14px,-12px)}}
-.regen{opacity:0;animation:regen 1.1s linear infinite}
-@keyframes regen{0%{opacity:0;transform:translateY(0)}12%{opacity:1}80%{opacity:1}100%{opacity:0;transform:translateY(300px)}}
-.r1{animation-delay:-.35s}.r2{animation-delay:-.75s}.r3{animation-delay:-.2s}
-.r4{animation-delay:-.6s}.r5{animation-delay:-.95s}.r6{animation-delay:-.5s}
-@keyframes traan0{0%{opacity:0;transform:translate(0,0) scale(.15)}18%{opacity:1;transform:translate(0,0) scale(.75)}30%{transform:translate(0,4px) scale(1)}72%{opacity:1;transform:translate(30px,234px) scale(1)}90%{opacity:1;transform:translate(34px,394px) scale(.9,1.1)}100%{opacity:0;transform:translate(36px,494px) scale(.8,1.15)}}
-@keyframes traan1{0%{opacity:0;transform:translate(0,0) scale(.15)}18%{opacity:1;transform:translate(0,0) scale(.75)}30%{transform:translate(0,4px) scale(1)}72%{opacity:1;transform:translate(-32px,239px) scale(1)}90%{opacity:1;transform:translate(-37px,399px) scale(.9,1.1)}100%{opacity:0;transform:translate(-38px,499px) scale(.8,1.15)}}
-.lid,.traan,.spring,.rek,.schaduw,.val,.wolk,.regen{transform-box:view-box}
-.flip-a,.flip-b,.flip-c{transform-box:fill-box;transform-origin:center}
-@media (prefers-reduced-motion:reduce){*{animation:none!important}.confetti,.regen-lagen,.traan,.spoor{display:none}}
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><style>
+.spring{transform-origin:1024px 1960px;animation:zucht 3.6s ease-in-out infinite}
+@keyframes zucht{0%,100%{transform:scale(1,1)}40%{transform:scale(1.012,.975) translateY(10px)}}
+.lid{transform:scaleY(0);animation:knipper 5s infinite}
+@keyframes knipper{0%,84%,100%{transform:scaleY(0)}88%,93%{transform:scaleY(1)}}
+.traan{opacity:0;animation:traan 2.6s ease-in infinite}
+.t1{animation-delay:-1.3s}
+@keyframes traan{0%{opacity:0;transform:translateY(-10px) scale(.4)}15%{opacity:1;transform:translateY(0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translateY(230px) scale(.9)}}
+.lid,.traan{transform-box:view-box}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
 </style><defs>
 <linearGradient id="Gradient1" gradientUnits="userSpaceOnUse" x1="650.0" y1="289.6" x2="599.9" y2="299.3">
 <stop offset="0" stop-opacity="1" stop-color="rgb(187,67,45)"/>
@@ -393,4 +372,4 @@
 <path fill="rgb(241,110,71)" d="M 538.0 459.6 C 546.6 462.0 556.0 463.9 564.9 462.6 C 571.1 461.5 570.5 462.7 573.8 468.3 C 575.3 468.8 575.9 469.2 577.5 469.4 C 586.5 473.8 592.7 476.4 602.1 479.9 L 586.4 486.6 C 565.8 477.3 555.8 473.6 538.0 459.6 z"/>
 <path fill="rgb(241,110,71)" d="M 1493.0 537.5 C 1494.8 538.0 1495.0 538.2 1496.8 538.1 C 1504.6 542.4 1515 543.6 1523.6 544.3 C 1508.1 551.4 1504.8 551.8 1488.0 555.0 C 1481.0 550.3 1474.3 545.3 1467.6 540.1 C 1476.7 540.1 1484.2 539.7 1493.0 537.5 z"/>
 <path fill="none" d="M 574.7 966.6 C 577.6 968.8 590.1 981.2 591.3 984.3 L 589.6 985.7 L 578.8 991.0 C 577.2 982.7 575.8 975.0 574.7 966.6 z"/>
-</g></defs><ellipse class="schaduw stil" cx="1010" cy="1935" rx="470" ry="58" fill="#000" opacity=".16"/><g class="spring"><g class="rek"><use href="#w"/><g class="lid" style="transform-origin:842px 478px"><ellipse cx="842" cy="618" rx="138" ry="140" fill="#F4841D"/><path d="M734 625 Q842 688 950 625" fill="none" stroke="#1E120B" stroke-width="22" stroke-linecap="round"/></g><g class="lid" style="transform-origin:1276px 544px"><ellipse cx="1276" cy="686" rx="118" ry="142" fill="#F4841D"/><path d="M1184 693 Q1276 757 1368 693" fill="none" stroke="#1E120B" stroke-width="22" stroke-linecap="round"/></g><path class="spoor s0" d="M1232 806 C1240 880 1252 960 1262 1040" fill="none" stroke="#BDEBFF" stroke-width="26" stroke-linecap="round" pathLength="100"/><g class="traan t0" style="transform-origin:1232px 806px"><path d="M1232 756 C1241 786 1270 814 1270 840 A38 38 0 0 1 1194 840 C1194 814 1223 786 1232 756 Z" fill="#7FD3FF" stroke="#1E120B" stroke-width="8"/><ellipse cx="1219" cy="832" rx="10" ry="14" fill="#fff" opacity=".9"/></g><path class="spoor s1" d="M888 746 C880 820 868 900 856 985" fill="none" stroke="#BDEBFF" stroke-width="26" stroke-linecap="round" pathLength="100"/><g class="traan t1" style="transform-origin:888px 746px"><path d="M888 696 C897 726 926 754 926 780 A38 38 0 0 1 850 780 C850 754 879 726 888 696 Z" fill="#7FD3FF" stroke="#1E120B" stroke-width="8"/><ellipse cx="875" cy="772" rx="10" ry="14" fill="#fff" opacity=".9"/></g></g></g><g class="regen-lagen"><path class="regen r0" d="M760 -70 c8 32 30 54 30 78 a30 30 0 0 1 -60 0 c0 -24 22 -46 30 -78z" fill="#7FD3FF" stroke="#1E120B" stroke-width="8"/><path class="regen r1" d="M880 -70 c8 32 30 54 30 78 a30 30 0 0 1 -60 0 c0 -24 22 -46 30 -78z" fill="#7FD3FF" stroke="#1E120B" stroke-width="8"/><path class="regen r2" d="M1000 -70 c8 32 30 54 30 78 a30 30 0 0 1 -60 0 c0 -24 22 -46 30 -78z" fill="#7FD3FF" stroke="#1E120B" stroke-width="8"/><path class="regen r3" d="M1120 -70 c8 32 30 54 30 78 a30 30 0 0 1 -60 0 c0 -24 22 -46 30 -78z" fill="#7FD3FF" stroke="#1E120B" stroke-width="8"/><path class="regen r4" d="M1240 -70 c8 32 30 54 30 78 a30 30 0 0 1 -60 0 c0 -24 22 -46 30 -78z" fill="#7FD3FF" stroke="#1E120B" stroke-width="8"/><path class="regen r5" d="M940 -70 c8 32 30 54 30 78 a30 30 0 0 1 -60 0 c0 -24 22 -46 30 -78z" fill="#7FD3FF" stroke="#1E120B" stroke-width="8"/><path class="regen r6" d="M1180 -70 c8 32 30 54 30 78 a30 30 0 0 1 -60 0 c0 -24 22 -46 30 -78z" fill="#7FD3FF" stroke="#1E120B" stroke-width="8"/></g><g class="wolk"><circle cx="800" cy="-170" r="150" fill="#1E120B"/><circle cx="960" cy="-230" r="185" fill="#1E120B"/><circle cx="1140" cy="-200" r="160" fill="#1E120B"/><circle cx="1270" cy="-150" r="125" fill="#1E120B"/><circle cx="690" cy="-130" r="115" fill="#1E120B"/><rect x="680" y="-150" width="680" height="70" rx="35" fill="#1E120B"/><circle cx="800" cy="-170" r="130" fill="#9AA3B5"/><circle cx="960" cy="-230" r="165" fill="#9AA3B5"/><circle cx="1140" cy="-200" r="140" fill="#9AA3B5"/><circle cx="1270" cy="-150" r="105" fill="#9AA3B5"/><circle cx="690" cy="-130" r="95" fill="#9AA3B5"/><rect x="690" y="-140" width="660" height="50" rx="25" fill="#9AA3B5"/><circle cx="768" cy="-209" r="72" fill="#B9C0CE"/><circle cx="919" cy="-280" r="91" fill="#B9C0CE"/><circle cx="1105" cy="-242" r="77" fill="#B9C0CE"/></g></svg>
+</g></defs><g class="spring"><use href="#w"/><g class="lid" style="transform-origin:842px 478px"><ellipse cx="842" cy="618" rx="138" ry="140" fill="#F4841D"/><path d="M734 625 Q842 688 950 625" fill="none" stroke="#1E120B" stroke-width="22" stroke-linecap="round"/></g><g class="lid" style="transform-origin:1276px 544px"><ellipse cx="1276" cy="686" rx="118" ry="142" fill="#F4841D"/><path d="M1184 693 Q1276 757 1368 693" fill="none" stroke="#1E120B" stroke-width="22" stroke-linecap="round"/></g><g class="traan t0" style="transform-origin:1236px 810px"><path d="M1236 760 C1245 790 1274 818 1274 844 A38 38 0 0 1 1198 844 C1198 818 1227 790 1236 760 Z" fill="#7FD3FF" stroke="#1E120B" stroke-width="8"/><ellipse cx="1223" cy="836" rx="10" ry="14" fill="#fff" opacity=".85"/></g><g class="traan t1" style="transform-origin:884px 748px"><path d="M884 698 C893 728 922 756 922 782 A38 38 0 0 1 846 782 C846 756 875 728 884 698 Z" fill="#7FD3FF" stroke="#1E120B" stroke-width="8"/><ellipse cx="871" cy="774" rx="10" ry="14" fill="#fff" opacity=".85"/></g></g></svg>
