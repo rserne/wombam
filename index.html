@@ -292,7 +292,7 @@ button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid
 .hero.uitslag{align-items:center;text-align:center;gap:6px}
 .hero.uitslag .label{margin:0}
 .hero.uitslag p.sub{margin:0;color:var(--muted);font-weight:700}
-.mood{width:min(230px,58vw);height:auto;margin:-6px 0 2px;filter:drop-shadow(0 8px 10px rgba(30,18,11,.18))}
+.mood{width:min(180px,46vw);height:auto;margin:-6px 0 2px;filter:drop-shadow(0 8px 10px rgba(30,18,11,.18))}
 /* de wombats bewegen zelf: zie animatie.py */
 .lede{margin:0;font-size:16px;color:var(--muted);max-width:44ch;text-wrap:pretty}
 .heroart{display:flex;justify-content:center;gap:0;margin:4px 0 -4px}
@@ -1514,7 +1514,7 @@ function overHTML(){
   // juichende wombat als jij wint (of samen op één telefoon een mens wint), anders een sippe
   const blij=youWin||(!ON&&humans().length>1&&!win.ai);
   const sub=youWin?'Jij bent als laatste overgebleven.':v!=null&&!blij?'Je bent ontploft. Volgende keer beter!':'';
-  const rows=order.map((r,k)=>`<div class="prow${r.i===S.winner?' win':''}"><span class="place">${k+1}</span><img src="${faceOf(r.p)}" alt=""><div class="who"><div class="name">${esc(r.p.name)}${v===r.i?' (jij)':''}</div><div class="meta">${r.i===S.winner?'Als laatste overgebleven':'Ontploft'}</div></div></div>`).join('');
+  const rows=order.map((r,k)=>`<div class="prow${r.i===S.winner?' win':''}"><span class="place">${k+1}</span><img src="${faceOf(r.p)}" alt=""><div class="who"><div class="name">${esc(r.p.name)}${v===r.i&&r.p.name.trim().toLowerCase()!=='jij'?' (jij)':''}</div><div class="meta">${r.i===S.winner?'Als laatste overgebleven':'Ontploft'}</div></div></div>`).join('');
   return headerHTML('over')+`
   <section class="hero uitslag"><img data-k="mood${blij?1:0}" class="mood ${blij?'blij':'sip'}" src="${SRC(blij?'img/blij.svg':'img/sip.svg')}" alt="${blij?'Juichende wombat':'Sippe wombat'}"><p class="label">Uitslag</p><h2>${head}</h2>${sub?`<p class="sub">${sub}</p>`:''}</section>
   <div class="podium">${rows}</div>`;
