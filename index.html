@@ -452,6 +452,31 @@ body{background:radial-gradient(var(--dots) 1.6px,transparent 1.8px) 0 0/14px 14
 .seat,.choice,.notice,.codebox,.lobby-seat,details.rules,.banner,.outmsg,.field,.seg,.chip,.timer{border-width:1.5px;box-shadow:2px 2px 0 var(--schaduw)}
 .prow,.ev,.table{border-width:1.5px;box-shadow:2px 2px 0 var(--vlak-schaduw)}
 .dock{border-top-width:1.5px}
+/* ===== Nog dunner: lijnen van 1 px; in het donker geen harde schaduwen ===== */
+.btn,.btn.soft{border-width:1px}
+.label,.pl .nm,.seat,.choice,.notice,.codebox,.lobby-seat,details.rules,.banner,.outmsg,.field,.seg,.chip,.timer,.prow,.ev,.table{border-width:1px}
+.pl .nm,.label{box-shadow:1.5px 1.5px 0 var(--schaduw)}
+.prow,.ev,.table,.seat,.choice,.notice,.codebox,.lobby-seat,details.rules,.banner,.outmsg,.field,.seg,.chip,.timer{box-shadow:2px 2px 0 var(--vlak-schaduw)}
+.dock{border-top-width:1px}
+.pl .av img,.prow img{border-width:2px}
+.prow.win img{box-shadow:0 0 0 2px #FFD23F}
+.pl.cur .av img{box-shadow:0 0 0 3px var(--accent)}
+@media (prefers-color-scheme:dark){
+:root:not([data-theme="light"]) .btn,:root:not([data-theme="light"]) .btn.soft{border-color:transparent;box-shadow:0 2px 0 rgba(0,0,0,.45)}
+:root:not([data-theme="light"]) .btn:active,:root:not([data-theme="light"]) .btn.soft:active{transform:translateY(1px);box-shadow:0 1px 0 rgba(0,0,0,.45)}
+:root:not([data-theme="light"]) .prow,:root:not([data-theme="light"]) .ev,:root:not([data-theme="light"]) .table{border-color:rgba(255,225,77,.55);box-shadow:none}
+:root:not([data-theme="light"]) .seat,:root:not([data-theme="light"]) .choice,:root:not([data-theme="light"]) .notice,:root:not([data-theme="light"]) .codebox,:root:not([data-theme="light"]) .lobby-seat,:root:not([data-theme="light"]) details.rules,:root:not([data-theme="light"]) .banner,:root:not([data-theme="light"]) .outmsg,:root:not([data-theme="light"]) .field,:root:not([data-theme="light"]) .seg,:root:not([data-theme="light"]) .chip,:root:not([data-theme="light"]) .timer{border-color:rgba(255,243,218,.14);box-shadow:none}
+:root:not([data-theme="light"]) .pl .nm,:root:not([data-theme="light"]) .label{border-color:transparent;box-shadow:none}
+:root:not([data-theme="light"]) .pl .av img{border-color:rgba(255,225,77,.8)}
+:root:not([data-theme="light"]) .dock{border-top-color:rgba(255,225,77,.35)}
+}
+:root[data-theme="dark"] .btn,:root[data-theme="dark"] .btn.soft{border-color:transparent;box-shadow:0 2px 0 rgba(0,0,0,.45)}
+:root[data-theme="dark"] .btn:active,:root[data-theme="dark"] .btn.soft:active{transform:translateY(1px);box-shadow:0 1px 0 rgba(0,0,0,.45)}
+:root[data-theme="dark"] .prow,:root[data-theme="dark"] .ev,:root[data-theme="dark"] .table{border-color:rgba(255,225,77,.55);box-shadow:none}
+:root[data-theme="dark"] .seat,:root[data-theme="dark"] .choice,:root[data-theme="dark"] .notice,:root[data-theme="dark"] .codebox,:root[data-theme="dark"] .lobby-seat,:root[data-theme="dark"] details.rules,:root[data-theme="dark"] .banner,:root[data-theme="dark"] .outmsg,:root[data-theme="dark"] .field,:root[data-theme="dark"] .seg,:root[data-theme="dark"] .chip,:root[data-theme="dark"] .timer{border-color:rgba(255,243,218,.14);box-shadow:none}
+:root[data-theme="dark"] .pl .nm,:root[data-theme="dark"] .label{border-color:transparent;box-shadow:none}
+:root[data-theme="dark"] .pl .av img{border-color:rgba(255,225,77,.8)}
+:root[data-theme="dark"] .dock{border-top-color:rgba(255,225,77,.35)}
 /* in Safari (niet als app op het beginscherm) ligt de onderbalk van de browser over de onderkant: houd de knoppen daar vandaan */
 @media not all and (display-mode: standalone){
   .dock{padding-bottom:calc(30px + env(safe-area-inset-bottom,0px))}
