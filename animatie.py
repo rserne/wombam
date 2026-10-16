@@ -1,7 +1,7 @@
 """Maakt van de twee losse wombat-tekeningen (SVG) een bewegende versie.
 
 De tekening blijft zoals hij is; er komt alleen iets omheen:
-- de juichende wombat (blij) zwaait met zijn armen, springt op en neer en knippert met zijn ogen;
+- de juichende wombat (blij) springt op en neer, wiebelt mee en laat de juichstreepjes naast zijn handen flitsen;
 - de sippe wombat (sip) zucht, knippert langzaam en laat tranen over zijn wangen lopen.
 
 De armen worden 'uitgeknipt': de tekening staat er drie keer in, één keer zonder armen
@@ -12,23 +12,20 @@ Wordt gebruikt door build.py.
 """
 import re
 
-# Coördinaten in de tekening (viewBox 0 0 2048 2048).
+# Coördinaten in de tekening (viewBox 0 0 1536 2048).
 BLIJ = {
-    'armen': [
-        # (naam, omtrek van het uitknipstuk, draaipunt, hoek laag, hoek hoog)
-        ('l', [(495, 840), (440, 760), (380, 700), (300, 680), (40, 700), (20, 1070), (240, 1180),
-               (470, 1310), (600, 1255)], (548, 1048), -5, 9),
-        ('r', [(1590, 960), (1650, 880), (1700, 820), (2020, 860), (2030, 1200), (1820, 1280),
-               (1600, 1370), (1500, 1335)], (1545, 1148), 5, -9),
-    ],
-    # ogen: middelpunt, straal x/y, kleur van de vacht eromheen, bocht van het dichte oog
-    'ogen': [((838, 500), 132, 128, '#F78E24'), ((1322, 592), 124, 146, '#F78E24')],
+    'voet': (768, 1880),          # rond dit punt veert hij in bij het springen
+    'armen': [],                  # de armen zitten vast aan het lijf; hij juicht met zijn hele lijf
+    'glans': (253, 211, 3),       # de gele juichstreepjes naast zijn handen: die flitsen
+    'ogen': [],                   # zijn ogen zijn dichtgeknepen van plezier: niets te knipperen
     'tranen': [],
 }
 SIP = {
+    'voet': (768, 1860),
     'armen': [],
-    'ogen': [((842, 618), 138, 140, '#F4841D'), ((1276, 686), 118, 142, '#F4841D')],
-    'tranen': [(1236, 810), (884, 748)],
+    # ogen: middelpunt, straal x/y, kleur van de vacht eromheen
+    'ogen': [((676, 745), 78, 72, '#AB7C5C'), ((1106, 818), 64, 62, '#AB7C5C')],
+    'tranen': [(642, 875), (1120, 965)],
 }
 
 
@@ -56,17 +53,36 @@ def animeer(svg, cfg, soort, pose=None):
     defs_in = re.sub(r'</?defs>', '', defs)
     tekening = re.sub(r'<defs>.*?</defs>', '', binnen, flags=re.S)
 
+    glans = ''
+    if cfg.get('glans'):
+        kleur = 'rgb(%d,%d,%d)' % cfg['glans']
+        paden = re.findall(r'<path[^>]*/>', tekening)
+        links, rechts = [], []
+        for i, pad in enumerate(paden):
+            if f'fill="{kleur}"' in pad:
+                stuk = [pad]
+                if i and 'fill="rgb(0,0,0)"' in paden[i - 1]:
+                    stuk.insert(0, paden[i - 1])      # de zwarte omlijning hoort erbij
+                x = float(re.search(r'd="M ([\d.]+)', pad).group(1))
+                (links if x < 768 else rechts).extend(stuk)
+        for pad in links + rechts:
+            tekening = tekening.replace(pad, '')
+        glans = (f'<g class="glans gl" style="transform-origin:330px 470px">{"".join(links)}</g>'
+                 f'<g class="glans gr" style="transform-origin:1240px 480px">{"".join(rechts)}</g>')
+
     armen = cfg['armen']
     clips, lagen = '', ''
     if armen:
         gaten = ' '.join(_poly(a[1]) for a in armen)
-        clips += f'<clipPath id="romp"><path clip-rule="evenodd" d="M-300 -300H2348V2348H-300Z {gaten}"/></clipPath>'
+        clips += f'<clipPath id="romp"><path clip-rule="evenodd" d="M-300 -300H2400V2400H-300Z {gaten}"/></clipPath>'
         lagen += '<use href="#w" clip-path="url(#romp)"/>'
         for naam, pts, (px, py), _, _ in armen:
             clips += f'<clipPath id="arm-{naam}"><path d="{_poly(_overlap(pts))}"/></clipPath>'
             lagen += f'<g class="arm arm-{naam}" style="transform-origin:{px}px {py}px"><use href="#w" clip-path="url(#arm-{naam})"/></g>'
     else:
         lagen += '<use href="#w"/>'
+
+    lagen += glans
 
     # oogleden: een vlak in de kleur van de vacht met een gesloten-ooglijn, dat van boven naar beneden zakt
     for i, ((cx, cy), rx, ry, kleur) in enumerate(cfg['ogen']):
@@ -85,18 +101,16 @@ def animeer(svg, cfg, soort, pose=None):
 
     if soort == 'blij':
         css = """
-.spring{transform-origin:1024px 1960px;animation:hop 1s ease-in-out infinite}
+.spring{transform-origin:VXpx VYpx;animation:hop 1s ease-in-out infinite}
 @keyframes hop{0%,100%{transform:translateY(0) scale(1.03,.97)}45%{transform:translateY(-70px) scale(.98,1.02)}55%{transform:translateY(-70px) scale(.98,1.02)}}
-.arm-l{animation:zwaai-l .5s ease-in-out infinite alternate}
-.arm-r{animation:zwaai-r .5s ease-in-out infinite alternate;animation-delay:-.25s}
-@keyframes zwaai-l{from{transform:rotate(L0deg)}to{transform:rotate(L1deg)}}
-@keyframes zwaai-r{from{transform:rotate(R0deg)}to{transform:rotate(R1deg)}}
-.lid{transform:scaleY(0);animation:knipper 3.4s infinite}
-@keyframes knipper{0%,90%,100%{transform:scaleY(0)}93%,96%{transform:scaleY(1)}}
-""".replace('L0', str(armen[0][3])).replace('L1', str(armen[0][4])).replace('R0', str(armen[1][3])).replace('R1', str(armen[1][4]))
+.rek{transform-origin:VXpx VYpx;animation:wiebel 2s ease-in-out infinite}
+@keyframes wiebel{0%,100%{transform:rotate(-2.5deg)}50%{transform:rotate(2.5deg)}}
+.glans{animation:flits 1s ease-out infinite}
+@keyframes flits{0%,30%{transform:scale(.7);opacity:.3}50%{transform:scale(1.15);opacity:1}100%{transform:scale(.9);opacity:.6}}
+"""
     else:
         css = """
-.spring{transform-origin:1024px 1960px;animation:zucht 3.6s ease-in-out infinite}
+.spring{transform-origin:VXpx VYpx;animation:zucht 3.6s ease-in-out infinite}
 @keyframes zucht{0%,100%{transform:scale(1,1)}40%{transform:scale(1.012,.975) translateY(10px)}}
 .lid{transform:scaleY(0);animation:knipper 5s infinite}
 @keyframes knipper{0%,84%,100%{transform:scaleY(0)}88%,93%{transform:scaleY(1)}}
@@ -104,9 +118,10 @@ def animeer(svg, cfg, soort, pose=None):
 .t1{animation-delay:-1.3s}
 @keyframes traan{0%{opacity:0;transform:translateY(-10px) scale(.4)}15%{opacity:1;transform:translateY(0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translateY(230px) scale(.9)}}
 """
-    css += '.lid,.traan{transform-box:view-box}\n@media (prefers-reduced-motion:reduce){*{animation:none!important}}\n'
+    css = css.replace('VX', str(cfg['voet'][0])).replace('VY', str(cfg['voet'][1]))
+    css += '.lid,.traan,.glans,.rek{transform-box:view-box}\n@media (prefers-reduced-motion:reduce){*{animation:none!important}}\n'
     if pose:
         css = pose
 
     return (f'{open_tag}<style>{css}</style><defs>{defs_in}<g id="w">{tekening}</g>{clips}</defs>'
-            f'<g class="spring">{lagen}</g></svg>\n')
+            f'<g class="spring"><g class="rek">{lagen}</g></g></svg>\n')

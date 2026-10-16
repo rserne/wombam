@@ -73,7 +73,7 @@ def wombats():
         s = re.sub(r'(\d+\.\d)\d+', r'\1', s)                        # één decimaal is genoeg
         s = s.replace(' transform="translate(0,0)"', '')
         s = re.sub(r' class="stop\d"', '', s)
-        s = re.sub(r' (width|height)="1254"', '', s).replace(' style="display: block;"', '').replace(' preserveAspectRatio="none"', '')
+        s = re.sub(r' (width|height)="\d+"', '', s).replace(' style="display: block;"', '').replace(' preserveAspectRatio="none"', '')
         s = re.sub(r'\n\s*', '\n', s)
         (IMG / f'{doel}.svg').write_text(animeer(s, cfg, doel), encoding='utf-8')
 
