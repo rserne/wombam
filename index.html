@@ -1035,7 +1035,7 @@ function spotlight(ev){
       break;
     }
     case 'attack': s=ev.to===v?{cards:['attack'],title:'Je bent aangevallen!',sub:`Jij moet nu ${ev.n} beurten spelen`}:{cards:['attack'],title:`${S.players[ev.to].name} moet ${ev.n} beurten spelen`,sub:`Aanval van ${who(by,false)}`}; bubble(ev.to,`moet ${ev.n} beurten`); break;
-    case 'steal': s={back:true,title:ev.from===v?`${nm} pakt een kaart van jou`:`${who(by,true)} ${mineBy?'pakt':'pakt'} een kaart van ${whom(ev.from)}`,sub:ev.from===v?'Welke kaart, zie je bovenin':''}; if(mineBy) s=null; bubble(by,ev.from===v?'steelt van jou':`steelt van ${S.players[ev.from].name}`); break;
+    case 'steal': s={back:true,title:ev.from===v?`${nm} pakt een kaart van jou`:`${who(by,true)} ${mineBy?'pakt':'pakt'} een kaart van ${whom(ev.from)}`,sub:''}; if(mineBy) s=null; bubble(by,ev.from===v?'steelt van jou':`steelt van ${S.players[ev.from].name}`); break;
     case 'draw':
       if(!mineBy){ s={back:true,title:`${nm} trekt een kaart`,sub:S.turns>1&&S.cur===by?`Nog ${S.turns} beurten`:''}; break; }
       { const ib=S.players[v].inbox, x=ib[ib.length-1];
@@ -1171,7 +1171,11 @@ function pumpInbox(){
     ui.seen[v]=x.n;
     // wat je zelf trekt, staat al onderin
     if(x.kind==='drew'){ ui.newCard=x.cards[0]; ui.newAt=Date.now(); continue; }
-    toast(`${miniHTML(x.cards[0])}<span>${esc(x.txt)}</span>`);
+    // een kaart gekregen of kwijt: dat staat onderin, net als de rest; alleen jij ziet welke kaart het is
+    const now=Date.now(), c={cards:[tOf(x.cards[0])],title:x.txt,sub:'',by:v,self:true,priv:true};
+    if(ui.last&&now-ui.last.at<400){ c.at=ui.last.at; c.until=Math.max(ui.last.until,now+SPOT_MS()); c.next=ui.last.next; }
+    else { c.at=now; c.until=now+SPOT_MS(); }
+    ui.last=c;
   }
 }
 
