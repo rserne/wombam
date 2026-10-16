@@ -84,22 +84,34 @@ def wombats():
         (IMG / f'{doel}.svg').write_text(animeer(s, cfg, doel), encoding='utf-8')
 
 
+def _met_marge(im, marge):
+    """Zet de tekening kleiner op een groter vlak in het oranje van de rand; de rand loopt zacht over, zonder naad."""
+    from PIL import ImageDraw, ImageFilter, ImageStat
+    w = im.width
+    strook = [im.crop((0, 0, w, 8)), im.crop((0, w - 8, w, w)), im.crop((0, 0, 8, w)), im.crop((w - 8, 0, w, w))]
+    kleur = tuple(round(sum(ImageStat.Stat(x).mean[i] for x in strook) / 4) for i in range(3))
+    groot = round(w * (1 + 2 * marge))
+    vlak = Image.new('RGB', (groot, groot), kleur)
+    rand = round(w * 0.08)
+    masker = Image.new('L', (w, w), 0)
+    ImageDraw.Draw(masker).rectangle((rand, rand, w - rand, w - rand), fill=255)
+    masker = masker.filter(ImageFilter.GaussianBlur(rand / 2))
+    off = (groot - w) // 2
+    vlak.paste(im, (off, off), masker)
+    return vlak
+
+
 def iconen():
-    """bron/icoon.png is een afgerond vierkant op wit. Telefoons ronden zelf af, dus we knippen net binnen
-    de ronde hoeken een vol vierkant uit; voor Android (maskable) komt dat kleiner op de turquoise achtergrond."""
+    """bron/icoon.png: de wombat op oranje. Rondom komt extra oranje, zodat telefoons de rand mogen afronden;
+    voor Android (maskable, soms rond afgesneden) nog wat meer."""
     im = Image.open(BRON / 'icoon.png').convert('RGB')
-    w, h = im.size
-    m = round(min(w, h) * 0.058)                 # net binnen de afgeronde hoeken
-    sq = im.crop((m, m, w - m, h - m))
+    sq = _met_marge(im, 0.12)
     sq.resize((512, 512), Image.LANCZOS).save(ROOT / 'icon-512.png', optimize=True)
     sq.resize((192, 192), Image.LANCZOS).save(ROOT / 'icon-192.png', optimize=True)
     sq.resize((180, 180), Image.LANCZOS).save(ROOT / 'apple-touch-icon.png', optimize=True)
     sq.resize((32, 32), Image.LANCZOS).save(ROOT / 'favicon-32.png', optimize=True)
     sq.resize((48, 48), Image.LANCZOS).save(ROOT / 'favicon.ico', sizes=[(16, 16), (32, 32), (48, 48)])
-    bg = sq.getpixel((6, 6))                    # turquoise uit de hoek
-    mk = Image.new('RGB', (512, 512), bg)
-    mk.paste(sq.resize((420, 420), Image.LANCZOS), (46, 46))
-    mk.save(ROOT / 'icon-maskable-512.png', optimize=True)
+    _met_marge(im, 0.22).resize((512, 512), Image.LANCZOS).save(ROOT / 'icon-maskable-512.png', optimize=True)
 
 
 def service_worker(ophogen):
