@@ -485,8 +485,8 @@ body{background:radial-gradient(var(--dots) 1.6px,transparent 1.8px) 0 0/14px 14
 :root .pl .av img{border-color:rgba(17,17,17,.75)}
 :root .dock{border-top-color:rgba(17,17,17,.2)}
 /* ===== Kaarten als tekening: de naam staat op de kaart zelf, de uitleg eronder ===== */
-.cbox{height:calc(333px*var(--s))}
-.card,.back{width:250px;height:333px;padding:0;border:0;border-radius:18px;background:none;box-shadow:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.28))}
+.cbox{height:calc(391px*var(--s))}
+.card,.back{width:250px;height:391px;padding:0;border:0;border-radius:18px;background:none;box-shadow:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.28))}
 .card>img,.back>img{width:100%;height:100%;display:block;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .card .cnt{right:-18px;top:-18px}
 .sheet p.cardtxt{max-width:300px;font-weight:700;font-size:16px;line-height:1.4;color:#F6E8D2;margin:-4px 0 0;text-wrap:pretty}
@@ -521,27 +521,27 @@ const Engine=(()=>{
 "use strict";
 const COMBO='Op zichzelf niets waard. Speel 2 dezelfde: steel een willekeurige kaart. Speel 3 dezelfde: noem een kaart en eis hem op.';
 const TYPES={
-  ek:     {title:'Exploderende Wombat',short:'Exploderend',color:'#F0541E',n:4,kind:'ek',
+  ek:     {title:'Exploderende Wombat',short:'Exploderend',color:'#E0301E',n:4,kind:'ek',
            text:'Trek je deze kaart en heb je geen Ontmantel? Dan ontplof je en lig je uit het spel.'},
-  defuse: {title:'Ontmantel',short:'Ontmantel',color:'#3BC42E',n:6,kind:'defuse',
+  defuse: {title:'Ontmantel',short:'Ontmantel',color:'#3DB83A',n:6,kind:'defuse',
            text:'Maak een Exploderende Wombat onschadelijk en stop hem in het geheim terug in de trekstapel, op een plek naar keuze.'},
-  attack: {title:'Aanval',short:'Aanval',color:'#E8361F',n:4,kind:'action',
+  attack: {title:'Aanval',short:'Aanval',color:'#F28A1A',n:4,kind:'action',
            text:'Eindig je beurt zonder te trekken. De volgende speler moet 2 beurten spelen.'},
-  skip:   {title:'Sla Over',short:'Sla Over',color:'#1E8FE0',n:4,kind:'action',
+  skip:   {title:'Sla Over',short:'Sla Over',color:'#2E8FE0',n:4,kind:'action',
            text:'Beëindig je beurt zonder een kaart te trekken.'},
-  shuffle:{title:'Schud',short:'Schud',color:'#F2C400',n:4,kind:'action',
+  shuffle:{title:'Schud',short:'Schud',color:'#C9A37A',n:4,kind:'action',
            text:'Schud de trekstapel grondig.'},
-  future: {title:'Voorspel de Toekomst',short:'Toekomst',color:'#9B30D9',n:5,kind:'action',
+  future: {title:'Voorspel de Toekomst',short:'Toekomst',color:'#8A3FD1',n:5,kind:'action',
            text:'Bekijk in het geheim de bovenste 3 kaarten van de trekstapel.'},
-  favor:  {title:'Kateautje',short:'Kateautje',color:'#F02A9A',n:4,kind:'action',
+  favor:  {title:'Kateautje',short:'Kateautje',color:'#F06AB8',n:4,kind:'action',
            text:'Kies een speler. Die geeft jou één kaart uit zijn hand, naar eigen keuze.'},
-  nope:   {title:'Nope',short:'Nope',color:'#C21FD6',n:5,kind:'nope',
+  nope:   {title:'Nope',short:'Nope',color:'#E3262B',n:5,kind:'nope',
            text:'Houd elke actie tegen, behalve Exploderende Wombat en Ontmantel. Mag ook buiten je beurt.'},
-  beard:  {title:'Bebaarde Wombat',short:'Baard',color:'#18B9C9',n:4,kind:'cat',text:COMBO},
-  melon:  {title:'Wombatmeloen',short:'Meloen',color:'#E8318A',n:4,kind:'cat',text:COMBO},
-  potato: {title:'Harige Aardappelwombat',short:'Aardappel',color:'#D98A1C',n:4,kind:'cat',text:COMBO},
-  rainbow:{title:'Regenboogwombat',short:'Regenboog',color:'#8A4DFF',n:4,kind:'cat',text:COMBO},
-  taco:   {title:'Tacowombat',short:'Taco',color:'#F06414',n:4,kind:'cat',text:COMBO}
+  beard:  {title:'Bebaarde Wombat',short:'Baard',color:'#F2C400',n:4,kind:'cat',text:COMBO},
+  melon:  {title:'Wombatmeloen',short:'Meloen',color:'#5DBB3A',n:4,kind:'cat',text:COMBO},
+  potato: {title:'Harige Aardappelwombat',short:'Aardappel',color:'#C9935A',n:4,kind:'cat',text:COMBO},
+  rainbow:{title:'Regenboogwombat',short:'Regenboog',color:'#A070F0',n:4,kind:'cat',text:COMBO},
+  taco:   {title:'Tacowombat',short:'Taco',color:'#F5A020',n:4,kind:'cat',text:COMBO}
 };
 const ORDER=Object.keys(TYPES);
 const REMOVE_AT_START=['ek','defuse'];

@@ -13,7 +13,7 @@ Gebruik:
 Wat waar vandaan komt:
     bron/icoon.png            -> icon-192.png, icon-512.png, icon-maskable-512.png,
                                  apple-touch-icon.png, favicon-32.png, favicon.ico
-    bron/kaarten/<soort>.png  -> img/<soort>-kaart.webp (de hele kaart, met de naam erop)
+    bron/kaarten/<soort>.png  -> img/<soort>-kaart.webp (de hele kaart met de naam erop, 640 x 1000)
                                  img/<soort>.webp (de tekening zonder naam, voor de kaarten in je hand)
                                  img/face-<soort>.webp (portret voor de spelers)
     bron/achterkant.png       -> img/back.webp
@@ -31,41 +31,35 @@ ROOT = Path(__file__).resolve().parent
 BRON, IMG = ROOT / 'bron', ROOT / 'img'
 SOORTEN = ['ek', 'defuse', 'attack', 'skip', 'shuffle', 'future', 'favor', 'nope',
            'beard', 'melon', 'potato', 'rainbow', 'taco']
-# Uitsnede van het wombatkopje per kaart (in pixels van een kaart van 1086 x 1448), voor de spelersportretten
+# Uitsnede van het wombatkopje per kaart, als vierkant (links, boven, maat) in pixels van de brontekening.
 GEZICHTEN = {
-    'skip': (430, 470, 930, 970), 'future': (320, 440, 840, 960), 'beard': (320, 410, 880, 970),
-    'melon': (390, 410, 930, 950), 'nope': (320, 410, 840, 930), 'taco': (410, 330, 930, 850),
+    'skip': (290, 230, 370), 'future': (205, 255, 370), 'beard': (195, 265, 390),
+    'melon': (300, 240, 370), 'nope': (300, 280, 370), 'taco': (385, 395, 345),
 }
-W, H, RADIUS = 1086, 1448, 92
+W, H = 640, 1000          # alle kaarten krijgen deze vorm (staand, ongeveer als een echte speelkaart)
 
 
 def _kaartvorm(pad):
-    """Lees een kaart in, maak alles buiten de afgeronde rand doorzichtig en breng hem op 1086 x 1448."""
-    from PIL import ImageChops, ImageDraw
+    """Lees een kaart in, snij hem bij tot de kaart zelf (de rest is doorzichtig) en breng hem op W x H."""
     im = Image.open(pad).convert('RGBA')
-    alfa = im.split()[3]
-    if alfa.getextrema()[0] < 128:               # al doorzichtig: snij bij tot de kaart zelf
-        im = im.crop(alfa.point(lambda v: 255 if v > 128 else 0).getbbox())
-    im = im.resize((W, H), Image.LANCZOS)
-    masker = Image.new('L', (W, H), 0)
-    ImageDraw.Draw(masker).rounded_rectangle((3, 3, W - 4, H - 4), RADIUS, fill=255)
-    im.putalpha(ImageChops.darker(im.split()[3], masker))
-    return im
+    vak = im.split()[3].point(lambda v: 255 if v > 128 else 0).getbbox()
+    return im.crop(vak).resize((W, H), Image.LANCZOS)
 
 
 def kaarten():
-    """Per soort: de hele kaart, de tekening zonder naam voor je hand en voor zes soorten een portret.
-    De achterkant wordt img/back.webp."""
+    """Per soort: de hele kaart (img/<soort>-kaart.webp), de tekening zonder naam voor je hand (img/<soort>.webp)
+    en voor zes soorten een portret (img/face-<soort>.webp). De achterkant wordt img/back.webp."""
     IMG.mkdir(exist_ok=True)
     for s in SOORTEN:
-        im = _kaartvorm(BRON / 'kaarten' / f'{s}.png')
-        im.resize((600, 800), Image.LANCZOS).save(IMG / f'{s}-kaart.webp', quality=84, method=6)
-        im.convert('RGB').crop((60, 450, W - 60, H - 60)).resize((440, 450), Image.LANCZOS).save(IMG / f'{s}.webp', quality=80, method=6)
+        bron = BRON / 'kaarten' / f'{s}.png'
+        im = _kaartvorm(bron)
+        im.save(IMG / f'{s}-kaart.webp', quality=86, method=6)
+        im.convert('RGB').crop((round(W * .07), round(H * .30), round(W * .93), round(H * .96))).resize((420, 486), Image.LANCZOS).save(IMG / f'{s}.webp', quality=82, method=6)
         if s in GEZICHTEN:
-            im.convert('RGB').crop(GEZICHTEN[s]).resize((192, 192), Image.LANCZOS).save(IMG / f'face-{s}.webp', quality=84, method=6)
-    _kaartvorm(BRON / 'achterkant.png').resize((600, 800), Image.LANCZOS).save(IMG / 'back.webp', quality=84, method=6)
+            x, y, m = GEZICHTEN[s]
+            Image.open(bron).convert('RGB').crop((x, y, x + m, y + m)).resize((192, 192), Image.LANCZOS).save(IMG / f'face-{s}.webp', quality=86, method=6)
+    _kaartvorm(BRON / 'achterkant.png').save(IMG / 'back.webp', quality=86, method=6)
     shutil.copy(BRON / 'ster.svg', IMG / 'star.svg')
-    (IMG / 'back.svg').unlink(missing_ok=True)
 
 
 def wombats():
@@ -102,16 +96,18 @@ def _met_marge(im, marge):
 
 
 def iconen():
-    """bron/icoon.png: de wombat op oranje. Rondom komt extra oranje, zodat telefoons de rand mogen afronden;
-    voor Android (maskable, soms rond afgesneden) nog wat meer."""
-    im = Image.open(BRON / 'icoon.png').convert('RGB')
-    sq = _met_marge(im, 0.12)
+    """bron/icoon.png is een afgerond vierkant met doorzichtige hoeken. Telefoons ronden zelf af, dus we knippen
+    net binnen die hoeken een vol vierkant uit. Voor Android (maskable, soms rond afgesneden) komt er oranje marge omheen."""
+    im = Image.open(BRON / 'icoon.png').convert('RGBA')
+    w = im.width
+    m = round(w * 0.0625)                        # net binnen de afgeronde hoeken
+    sq = im.crop((m, m, w - m, w - m)).convert('RGB')
     sq.resize((512, 512), Image.LANCZOS).save(ROOT / 'icon-512.png', optimize=True)
     sq.resize((192, 192), Image.LANCZOS).save(ROOT / 'icon-192.png', optimize=True)
     sq.resize((180, 180), Image.LANCZOS).save(ROOT / 'apple-touch-icon.png', optimize=True)
     sq.resize((32, 32), Image.LANCZOS).save(ROOT / 'favicon-32.png', optimize=True)
     sq.resize((48, 48), Image.LANCZOS).save(ROOT / 'favicon.ico', sizes=[(16, 16), (32, 32), (48, 48)])
-    _met_marge(im, 0.22).resize((512, 512), Image.LANCZOS).save(ROOT / 'icon-maskable-512.png', optimize=True)
+    _met_marge(sq, 0.16).resize((512, 512), Image.LANCZOS).save(ROOT / 'icon-maskable-512.png', optimize=True)
 
 
 def service_worker(ophogen):
