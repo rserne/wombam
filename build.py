@@ -78,54 +78,45 @@ def wombats():
         (IMG / f'{doel}.svg').write_text(animeer(s, cfg, doel), encoding='utf-8')
 
 
-def _met_marge(im, marge):
-    """Zet de tekening kleiner op een groter vlak in het oranje van de rand; de rand loopt zacht over, zonder naad."""
-    from PIL import ImageDraw, ImageFilter, ImageStat
-    w = im.width
-    strook = [im.crop((0, 0, w, 8)), im.crop((0, w - 8, w, w)), im.crop((0, 0, 8, w)), im.crop((w - 8, 0, w, w))]
-    kleur = tuple(round(sum(ImageStat.Stat(x).mean[i] for x in strook) / 4) for i in range(3))
-    groot = round(w * (1 + 2 * marge))
-    vlak = Image.new('RGB', (groot, groot), kleur)
-    rand = round(w * 0.08)
-    masker = Image.new('L', (w, w), 0)
-    ImageDraw.Draw(masker).rectangle((rand, rand, w - rand, w - rand), fill=255)
-    masker = masker.filter(ImageFilter.GaussianBlur(rand / 2))
-    off = (groot - w) // 2
-    vlak.paste(im, (off, off), masker)
-    return vlak
+ICOON_ACHTERGROND = (240, 90, 26)     # effen oranje rond de tegel
 
 
-def _icoon_marge(sq, schaal):
-    """De tekening kleiner, onderaan in het midden, op een vlak in het oranje van de bovenrand.
-    De wombat loopt zo nog steeds door tot de onderrand; links, rechts en boven komt oranje marge."""
-    from PIL import ImageDraw, ImageFilter, ImageStat
-    w = sq.width
-    kleur = tuple(round(v) for v in ImageStat.Stat(sq.crop((0, 0, w, 6))).mean[:3])
-    vlak = Image.new('RGB', (w, w), kleur)
-    k = round(w * schaal)
-    klein = sq.resize((k, k), Image.LANCZOS)
-    rand = round(k * 0.07)
-    masker = Image.new('L', (k, k), 0)
-    ImageDraw.Draw(masker).rectangle((rand, rand, k - rand, k + rand), fill=255)   # onderrand blijft scherp
-    masker = masker.filter(ImageFilter.GaussianBlur(rand / 2))
-    vlak.paste(klein, ((w - k) // 2, w - k), masker)
+def _icoon_tegel(sq, schaal, n=1024):
+    """Je tekening als afgeronde tegel met een wit randje en een zachte schaduw, midden op effen oranje."""
+    from PIL import ImageDraw, ImageFilter
+
+    def afgerond(maat):
+        m = Image.new('L', (maat, maat), 0)
+        ImageDraw.Draw(m).rounded_rectangle((0, 0, maat - 1, maat - 1), round(maat * 0.2), fill=255)
+        return m
+
+    vlak = Image.new('RGB', (n, n), ICOON_ACHTERGROND)
+    k, b = round(n * schaal), round(n * 0.035)
+    rand = afgerond(k + 2 * b)
+    off = (n - k - 2 * b) // 2
+    schaduw = Image.new('L', (n, n), 0)
+    schaduw.paste(rand, (off, off + n // 70))
+    schaduw = schaduw.filter(ImageFilter.GaussianBlur(n / 56)).point(lambda v: int(v * 0.35))
+    vlak.paste((0, 0, 0), (0, 0, n, n), schaduw)
+    vlak.paste((255, 255, 255), (off, off, off + k + 2 * b, off + k + 2 * b), rand)
+    vlak.paste(sq.resize((k, k), Image.LANCZOS), (off + b, off + b), afgerond(k))
     return vlak
 
 
 def iconen():
     """bron/icoon.png is een afgerond vierkant met doorzichtige hoeken. We knippen net binnen die hoeken een vol
-    vierkant uit en zetten dat kleiner op oranje, zodat er rondom marge is. Voor Android (soms rond afgesneden) iets kleiner."""
+    vierkant uit en zetten dat als tegel op oranje. Voor Android (dat zelf de vorm kiest, soms rond) iets kleiner."""
     im = Image.open(BRON / 'icoon.png').convert('RGBA')
     w = im.width
     m = round(w * 0.0625)                        # net binnen de afgeronde hoeken
     sq = im.crop((m, m, w - m, w - m)).convert('RGB')
-    ic = _icoon_marge(sq, 0.76)
+    ic = _icoon_tegel(sq, 0.74)
     ic.resize((512, 512), Image.LANCZOS).save(ROOT / 'icon-512.png', optimize=True)
     ic.resize((192, 192), Image.LANCZOS).save(ROOT / 'icon-192.png', optimize=True)
     ic.resize((180, 180), Image.LANCZOS).save(ROOT / 'apple-touch-icon.png', optimize=True)
     ic.resize((32, 32), Image.LANCZOS).save(ROOT / 'favicon-32.png', optimize=True)
     ic.resize((48, 48), Image.LANCZOS).save(ROOT / 'favicon.ico', sizes=[(16, 16), (32, 32), (48, 48)])
-    _icoon_marge(sq, 0.64).resize((512, 512), Image.LANCZOS).save(ROOT / 'icon-maskable-512.png', optimize=True)
+    _icoon_tegel(sq, 0.58).resize((512, 512), Image.LANCZOS).save(ROOT / 'icon-maskable-512.png', optimize=True)
 
 
 def service_worker(ophogen):
