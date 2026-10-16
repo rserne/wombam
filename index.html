@@ -477,6 +477,13 @@ body{background:radial-gradient(var(--dots) 1.6px,transparent 1.8px) 0 0/14px 14
 :root[data-theme="dark"] .pl .nm,:root[data-theme="dark"] .label{border-color:transparent;box-shadow:none}
 :root[data-theme="dark"] .pl .av img{border-color:rgba(255,225,77,.8)}
 :root[data-theme="dark"] .dock{border-top-color:rgba(255,225,77,.35)}
+/* ===== Licht net zo rustig als donker: dunne, halfdoorzichtige lijnen en geen harde schaduwen (de regels voor donker gaan voor) ===== */
+:root .btn,:root .btn.soft{border-color:transparent;box-shadow:0 2px 0 rgba(17,17,17,.28)}
+:root .prow,:root .ev,:root .table{border-color:rgba(17,17,17,.35);box-shadow:none}
+:root .seat,:root .choice,:root .notice,:root .codebox,:root .lobby-seat,:root details.rules,:root .banner,:root .outmsg,:root .field,:root .seg,:root .chip,:root .timer{border-color:rgba(17,17,17,.14);box-shadow:none}
+:root .pl .nm,:root .label{border-color:transparent;box-shadow:none}
+:root .pl .av img{border-color:rgba(17,17,17,.75)}
+:root .dock{border-top-color:rgba(17,17,17,.2)}
 /* in Safari (niet als app op het beginscherm) ligt de onderbalk van de browser over de onderkant: houd de knoppen daar vandaan */
 @media not all and (display-mode: standalone){
   .dock{padding-bottom:calc(30px + env(safe-area-inset-bottom,0px))}
