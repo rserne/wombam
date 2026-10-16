@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#FFF4DE" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#17110D" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#FFE14D" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1B1236" media="(prefers-color-scheme: dark)">
 <meta name="description" content="Kaartspel voor 2 tot 5 spelers: trek kaarten en ontwijk de Exploding Wombats.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.ico?v=1" sizes="48x48">
@@ -18,41 +18,40 @@
 <title>Wombam!</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Lilita+One&family=Nunito:wght@600;700;800&display=swap">
 <style>
 /* Layout: mobiele app in stripstijl. Kop met pictogramknoppen, medespelers als wombatportretten, tafel met trekstapel en aflegstapel,
-   je hand met de naam op de boekrug, en een vaste actiebalk onderin binnen duimbereik. Volgt licht/donker van het toestel. */
+   je hand met de naam op de boekrug, en een vaste actiebalk onderin binnen duimbereik. Volgt licht/donker van het toestel. Stijl: pop-art (geel met rasterpuntjes, of nachtpaars in het donker). */
 :root{
-  --bg:#FFF4DE; --surface:#FFFDF7; --surface-2:#F3E2C0; --line:rgba(30,18,11,.13);
-  --ink:#1E120B; --muted:#7A4A2A; --paper:#F6E3B8; --cardink:#1E120B;
-  --accent:#E0441C; --accent-ink:#FFFFFF; --good:#2E9E3E; --good-ink:#FFFFFF;
-  --shadow:0 1px 2px rgba(30,18,11,.08),0 6px 18px rgba(30,18,11,.10);
-  --shadow-lift:0 2px 4px rgba(30,18,11,.10),0 14px 30px rgba(30,18,11,.18);
-  --card-shadow:0 8px 18px rgba(30,18,11,.22);
-  --dock:rgba(255,244,222,.86);
-  --f-display:"Lilita One","Arial Black",system-ui,sans-serif;
-  --f-body:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-  --r:18px;
+--bg:#FFE14D; --surface:#FFFFFF; --surface-2:#FFF3C4; --line:#111111;
+--ink:#111111; --muted:#3B3B3B; --cardink:#111111;
+--accent:#FF3D7F; --accent-ink:#FFFFFF; --good:#00A6E0; --good-ink:#FFFFFF;
+--hl:#D81B5B; --rand:#111111; --schaduw:#111111; --vlak-rand:#111111; --vlak-schaduw:#111111;
+--shadow:3px 3px 0 #111; --shadow-lift:4px 4px 0 #111; --card-shadow:3px 4px 0 rgba(17,17,17,.85);
+--dock:#FFFFFF; --logo:#111111; --dots:rgba(255,61,127,.22); --tafel:#00A6E0; --zacht:#FFFFFF; --zacht-ink:#111111;
+--paper:#F6E3B8;
+--f-display:"Bangers","Impact","Arial Black",sans-serif;
+--f-card:"Lilita One","Arial Black",system-ui,sans-serif;
+--f-body:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+--r:14px;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#17110D; --surface:#221913; --surface-2:#2E231B; --line:rgba(255,236,210,.10);
-  --ink:#F6E8D2; --muted:#BFA88C;
-  --accent:#F0612A; --accent-ink:#1A0A03; --good:#45B954; --good-ink:#08200C;
-  --shadow:0 1px 0 rgba(255,255,255,.04) inset,0 8px 24px rgba(0,0,0,.4);
-  --shadow-lift:0 1px 0 rgba(255,255,255,.06) inset,0 16px 34px rgba(0,0,0,.6);
-  --card-shadow:0 0 0 2px #6B5544,0 12px 26px rgba(0,0,0,.55);
-  --dock:rgba(23,17,13,.86);
-  color-scheme:dark;
+--bg:#1B1236; --surface:#2B1F4D; --surface-2:#3A2C63; --line:rgba(255,243,218,.22);
+--ink:#FFF3DA; --muted:#CDBFEA; --cardink:#0A0614;
+--accent:#FF4F8B; --accent-ink:#FFFFFF; --good:#1BB5EE; --good-ink:#FFFFFF;
+--hl:#FF6FA0; --rand:#0A0614; --schaduw:#0A0614; --vlak-rand:#FFE14D; --vlak-schaduw:#FFE14D;
+--shadow:3px 3px 0 #0A0614; --shadow-lift:4px 4px 0 #0A0614; --card-shadow:3px 4px 0 rgba(0,0,0,.7);
+--dock:#231842; --logo:#FFE14D; --dots:rgba(255,79,139,.20); --tafel:#0E7FB0; --zacht:#FFE14D; --zacht-ink:#111111;
+color-scheme:dark;
 }}
 :root[data-theme="dark"]{
-  --bg:#17110D; --surface:#221913; --surface-2:#2E231B; --line:rgba(255,236,210,.10);
-  --ink:#F6E8D2; --muted:#BFA88C;
-  --accent:#F0612A; --accent-ink:#1A0A03; --good:#45B954; --good-ink:#08200C;
-  --shadow:0 1px 0 rgba(255,255,255,.04) inset,0 8px 24px rgba(0,0,0,.4);
-  --shadow-lift:0 1px 0 rgba(255,255,255,.06) inset,0 16px 34px rgba(0,0,0,.6);
-  --card-shadow:0 0 0 2px #6B5544,0 12px 26px rgba(0,0,0,.55);
-  --dock:rgba(23,17,13,.86);
-  color-scheme:dark;
+--bg:#1B1236; --surface:#2B1F4D; --surface-2:#3A2C63; --line:rgba(255,243,218,.22);
+--ink:#FFF3DA; --muted:#CDBFEA; --cardink:#0A0614;
+--accent:#FF4F8B; --accent-ink:#FFFFFF; --good:#1BB5EE; --good-ink:#FFFFFF;
+--hl:#FF6FA0; --rand:#0A0614; --schaduw:#0A0614; --vlak-rand:#FFE14D; --vlak-schaduw:#FFE14D;
+--shadow:3px 3px 0 #0A0614; --shadow-lift:4px 4px 0 #0A0614; --card-shadow:3px 4px 0 rgba(0,0,0,.7);
+--dock:#231842; --logo:#FFE14D; --dots:rgba(255,79,139,.20); --tafel:#0E7FB0; --zacht:#FFE14D; --zacht-ink:#111111;
+color-scheme:dark;
 }
 html,body{background:var(--bg);color:var(--ink)}
 body{font-family:var(--f-body);font-size:16px;line-height:1.45;font-weight:600;-webkit-tap-highlight-color:transparent}
@@ -377,6 +376,60 @@ details.rules summary{font-weight:800;padding:14px 0;cursor:pointer}
 .toast .mc{width:44px;height:61px;border-width:2px;padding:2px}
 .toast .mc .sp{display:none}
 @keyframes drop2{from{transform:translate(-50%,-20px);opacity:0}}
+/* ===== Pop-art: geel (of nachtpaars) met rasterpuntjes, zwarte lijnen en harde schaduwen ===== */
+body{background:radial-gradient(var(--dots) 1.6px,transparent 1.8px) 0 0/14px 14px,var(--bg)}
+.card,.back,.mc,.ev-vis,.cbox,.toast .mc,.code-letters{--f-display:var(--f-card)}
+.mc{border-width:2.5px;box-shadow:-2px 0 6px rgba(17,17,17,.2)}
+.logo{font-size:31px;letter-spacing:.03em;min-width:0;overflow:hidden;white-space:nowrap;padding:0 4px 4px 0;color:var(--logo);text-shadow:3px 3px 0 var(--accent)}
+.logo img{border:2px solid var(--rand);box-shadow:2px 2px 0 var(--vlak-schaduw)}
+.ib{border:2px solid var(--vlak-rand);box-shadow:2px 2px 0 var(--vlak-schaduw);border-radius:10px}
+.label{color:#111;background:var(--zacht);display:inline-block;align-self:flex-start;padding:3px 8px;border:2px solid var(--rand);box-shadow:2px 2px 0 var(--schaduw)}
+.hero.uitslag .label{align-self:center}
+.hero h2{font-size:clamp(36px,11vw,52px);letter-spacing:.03em;line-height:1}
+.hero h2 em{color:var(--accent);text-shadow:3px 3px 0 var(--schaduw)}
+.dock-msg b,.err{color:var(--hl)}
+/* knoppen */
+.btn{border:2px solid var(--rand);border-radius:12px;box-shadow:3px 3px 0 var(--schaduw);font-weight:800;font-size:17px;line-height:1.2}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--schaduw)}
+.btn.soft{background:var(--zacht);color:var(--zacht-ink);border:2px solid var(--rand);box-shadow:3px 3px 0 var(--schaduw)}
+.btn.soft:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--schaduw)}
+.btn.nope{font-size:21px;letter-spacing:.05em}
+.btn.small{box-shadow:2px 2px 0 var(--schaduw)}
+.btn.ping{animation:none}
+.up-btn{border:2px solid #111}
+/* vlakken */
+.seat,.choice,.notice,.codebox,.lobby-seat,details.rules,.banner,.outmsg,.field{border:2px solid var(--rand);box-shadow:3px 3px 0 var(--schaduw)}
+.seat.off{border:2px dashed var(--muted);box-shadow:none;outline:0}
+.join-row .field{box-shadow:none}
+.seg{background:var(--surface);border:2px solid var(--rand);border-radius:12px}
+.seg button{color:var(--muted)}
+.seg button[aria-pressed="true"]{background:#111;color:#FFE14D;box-shadow:none}
+.chip{border:2px solid var(--rand)}
+.prow,.ev{border:2px solid var(--vlak-rand);box-shadow:3px 3px 0 var(--vlak-schaduw);border-radius:12px}
+.ev{background:var(--surface)}
+.ev-t .t{font-size:22px;letter-spacing:.04em}
+.prow .name{font-size:24px;letter-spacing:.04em}
+.prow .place{font-size:30px}
+.prow.win{background:var(--accent);color:#fff;box-shadow:3px 3px 0 var(--vlak-schaduw)}
+.prow.win .meta{color:#fff}
+.handhead p{font-family:var(--f-display);font-size:22px;letter-spacing:.05em;font-weight:400}
+.dock{border-top:2px solid var(--vlak-rand);backdrop-filter:none;-webkit-backdrop-filter:none}
+.wait{color:var(--ink)}
+.dots i{background:var(--accent)}
+.timer{border:2px solid var(--rand);height:12px;background:var(--surface)}
+/* tafel en spelers */
+.table{background:var(--tafel) radial-gradient(rgba(255,255,255,.35) 2px,transparent 2.3px) 0 0/12px 12px;border:2px solid var(--vlak-rand);box-shadow:4px 4px 0 var(--vlak-schaduw);border-radius:18px}
+.pile .lbl{color:#fff;font-family:var(--f-display);font-size:17px;letter-spacing:.06em;font-weight:400;text-shadow:2px 2px 0 #111}
+.empty-pile{border:2px dashed rgba(17,17,17,.6)}
+.pl .nm{font-family:var(--f-display);font-size:17px;letter-spacing:.05em;background:var(--zacht);color:#111;border:2px solid var(--rand);box-shadow:2px 2px 0 var(--schaduw);border-radius:6px;transform:rotate(-3deg)}
+.pl .av img{border:3px solid var(--vlak-rand)}
+.pl.cur .av img{box-shadow:0 0 0 4px var(--accent),3px 3px 0 4px var(--schaduw)}
+/* vensters */
+.ov{background:rgba(27,18,54,.94)}
+.sheet .btn.soft{background:#FFE14D;color:#111;border:2px solid #0A0614;box-shadow:3px 3px 0 #0A0614}
+.sheet h2{letter-spacing:.04em;font-size:30px}
+.toast{border:2px solid var(--vlak-rand)}
+.handoff h2{letter-spacing:.04em;font-size:38px}
 /* in Safari (niet als app op het beginscherm) ligt de onderbalk van de browser over de onderkant: houd de knoppen daar vandaan */
 @media not all and (display-mode: standalone){
   .dock{padding-bottom:calc(30px + env(safe-area-inset-bottom,0px))}
