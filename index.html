@@ -430,6 +430,26 @@ body{background:radial-gradient(var(--dots) 1.6px,transparent 1.8px) 0 0/14px 14
 .sheet h2{letter-spacing:.04em;font-size:30px}
 .toast{border:2px solid var(--vlak-rand)}
 .handoff h2{letter-spacing:.04em;font-size:38px}
+/* ===== Lichter aangezet: kaarten zonder zwarte randen, knoppen met een dun lijntje ===== */
+.card{border:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18),var(--card-shadow)}
+.card .ban,.card .art,.card .txt{border:0}
+.card .art{border-radius:8px}
+.card .ban{box-shadow:0 1px 0 rgba(0,0,0,.08)}
+.back{border:0;padding:6px;box-shadow:var(--card-shadow)}
+.back .in{border:0}
+.mc{border:1.5px solid rgba(0,0,0,.35);box-shadow:-2px 0 6px rgba(0,0,0,.18)}
+.mc .sp{border-right:1px solid rgba(0,0,0,.2)}
+.mc .mcnt{border-width:1.5px}
+.ev .mc{border-width:1.5px}
+.ev .mback{border:0}
+.ev .mback img,.back .in img{border-width:2px}
+.btn{border-width:1.5px;box-shadow:2px 2px 0 var(--schaduw)}
+.btn.soft{border-width:1.5px;box-shadow:2px 2px 0 var(--schaduw)}
+.btn:active,.btn.soft:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--schaduw)}
+.ib,.logo img,.label,.pl .nm{border-width:1.5px}
+.seat,.choice,.notice,.codebox,.lobby-seat,details.rules,.banner,.outmsg,.field,.seg,.chip,.timer{border-width:1.5px;box-shadow:2px 2px 0 var(--schaduw)}
+.prow,.ev,.table{border-width:1.5px;box-shadow:2px 2px 0 var(--vlak-schaduw)}
+.dock{border-top-width:1.5px}
 /* in Safari (niet als app op het beginscherm) ligt de onderbalk van de browser over de onderkant: houd de knoppen daar vandaan */
 @media not all and (display-mode: standalone){
   .dock{padding-bottom:calc(30px + env(safe-area-inset-bottom,0px))}
