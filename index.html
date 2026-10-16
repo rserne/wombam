@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#FFE14D" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#1B1236" media="(prefers-color-scheme: dark)">
-<meta name="description" content="Kaartspel voor 2 tot 5 spelers: trek kaarten en ontwijk de Exploding Wombats.">
+<meta name="description" content="Kaartspel voor 2 tot 5 spelers: trek kaarten en ontwijk de Exploderende Wombats.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="favicon.ico?v=1" sizes="48x48">
 <link rel="icon" href="favicon-32.png?v=1" type="image/png" sizes="32x32">
@@ -81,7 +81,7 @@ button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid
 .card .art img{width:100%;height:100%;object-fit:cover;display:block}
 .card .txt{flex:1;background:var(--paper);border:2.5px solid #1E120B;border-radius:10px;padding:6px 10px;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:800;font-size:var(--ts);line-height:1.28}
 .back{width:250px;height:350px;border:4px solid var(--cardink);border-radius:20px;background:#1E120B;padding:8px;box-shadow:var(--card-shadow)}
-.back .in{height:100%;border-radius:12px;border:2.5px solid var(--paper);background:#D63B1F url(img/back.svg) center/cover;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.back .in{height:100%;border-radius:12px;border:2.5px solid var(--paper);background:#1E6FD8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
 .back .in img{width:136px;height:136px;border-radius:50%;border:5px solid #1E120B;box-shadow:0 0 0 5px #FFD23F,0 8px 18px rgba(30,18,11,.4)}
 .back .in b{font-family:var(--f-display);font-weight:400;font-size:40px;line-height:1;color:#FFD23F;text-shadow:3px 0 0 #1E120B,-3px 0 0 #1E120B,0 3px 0 #1E120B,0 -3px 0 #1E120B,2px 2px 0 #1E120B,-2px -2px 0 #1E120B,2px -2px 0 #1E120B,-2px 2px 0 #1E120B,0 6px 0 #1E120B}
 
@@ -252,7 +252,7 @@ button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid
 .ev .mc .sp{width:14px;left:2px;top:2px;bottom:2px;border-right-width:1.5px}
 .ev .mc .sp b{font-size:9px}
 .ev.n2 .mc+.mc,.ev.n3 .mc+.mc{margin-left:-30px}
-.ev .mback{width:50px;height:70px;border-radius:9px;border:2.5px solid #1E120B;background:#D63B1F url(img/back.svg) center/cover;display:grid;place-items:center}
+.ev .mback{width:50px;height:70px;border-radius:9px;border:2.5px solid #1E120B;background:#1E6FD8;display:grid;place-items:center}
 .ev .mback img{width:28px;height:28px;border-radius:50%;border:2px solid #1E120B}
 .ev-t{min-width:0}
 .ev-t .t{margin:0;font-family:var(--f-display);font-size:19px;line-height:1.15;color:var(--ink)}
@@ -484,6 +484,15 @@ body{background:radial-gradient(var(--dots) 1.6px,transparent 1.8px) 0 0/14px 14
 :root .pl .nm,:root .label{border-color:transparent;box-shadow:none}
 :root .pl .av img{border-color:rgba(17,17,17,.75)}
 :root .dock{border-top-color:rgba(17,17,17,.2)}
+/* ===== Kaarten als tekening: de naam staat op de kaart zelf, de uitleg eronder ===== */
+.cbox{height:calc(333px*var(--s))}
+.card,.back{width:250px;height:333px;padding:0;border:0;border-radius:18px;background:none;box-shadow:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.28))}
+.card>img,.back>img{width:100%;height:100%;display:block;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.card .cnt{right:-18px;top:-18px}
+.sheet p.cardtxt{max-width:300px;font-weight:700;font-size:16px;line-height:1.4;color:#F6E8D2;margin:-4px 0 0;text-wrap:pretty}
+.ev .mback{background:none;border:0;padding:0;overflow:hidden;border-radius:7px}
+.ev .mback img{width:100%;height:100%;border:0;border-radius:0;object-fit:cover}
+.mc .im img{object-position:50% 40%}
 /* in Safari (niet als app op het beginscherm) ligt de onderbalk van de browser over de onderkant: houd de knoppen daar vandaan */
 @media not all and (display-mode: standalone){
   .dock{padding-bottom:calc(30px + env(safe-area-inset-bottom,0px))}
@@ -512,27 +521,27 @@ const Engine=(()=>{
 "use strict";
 const COMBO='Op zichzelf niets waard. Speel 2 dezelfde: steel een willekeurige kaart. Speel 3 dezelfde: noem een kaart en eis hem op.';
 const TYPES={
-  ek:     {title:'Exploding Wombat',short:'Exploding',color:'#E0441C',n:4,kind:'ek',
+  ek:     {title:'Exploderende Wombat',short:'Exploderend',color:'#F0541E',n:4,kind:'ek',
            text:'Trek je deze kaart en heb je geen Ontmantel? Dan ontplof je en lig je uit het spel.'},
-  defuse: {title:'Ontmantel',short:'Ontmantel',color:'#2E9E3E',n:6,kind:'defuse',
-           text:'Maak een Exploding Wombat onschadelijk en stop hem in het geheim terug in de trekstapel, op een plek naar keuze.'},
-  attack: {title:'Aanval',short:'Aanval',color:'#EE6A10',n:4,kind:'action',
+  defuse: {title:'Ontmantel',short:'Ontmantel',color:'#3BC42E',n:6,kind:'defuse',
+           text:'Maak een Exploderende Wombat onschadelijk en stop hem in het geheim terug in de trekstapel, op een plek naar keuze.'},
+  attack: {title:'Aanval',short:'Aanval',color:'#E8361F',n:4,kind:'action',
            text:'Eindig je beurt zonder te trekken. De volgende speler moet 2 beurten spelen.'},
-  skip:   {title:'Sla Over',short:'Sla Over',color:'#1E6FD8',n:4,kind:'action',
+  skip:   {title:'Sla Over',short:'Sla Over',color:'#1E8FE0',n:4,kind:'action',
            text:'Beëindig je beurt zonder een kaart te trekken.'},
-  shuffle:{title:'Schud',short:'Schud',color:'#4F6A99',n:4,kind:'action',
+  shuffle:{title:'Schud',short:'Schud',color:'#F2C400',n:4,kind:'action',
            text:'Schud de trekstapel grondig.'},
-  future: {title:'Voorspel de Toekomst',short:'Toekomst',color:'#7B2FBE',n:5,kind:'action',
+  future: {title:'Voorspel de Toekomst',short:'Toekomst',color:'#9B30D9',n:5,kind:'action',
            text:'Bekijk in het geheim de bovenste 3 kaarten van de trekstapel.'},
-  favor:  {title:'Kateautje',short:'Kateautje',color:'#E0457B',n:4,kind:'action',
+  favor:  {title:'Kateautje',short:'Kateautje',color:'#F02A9A',n:4,kind:'action',
            text:'Kies een speler. Die geeft jou één kaart uit zijn hand, naar eigen keuze.'},
-  nope:   {title:'Nope',short:'Nope',color:'#2E2A33',n:5,kind:'nope',
-           text:'Houd elke actie tegen, behalve Exploding Wombat en Ontmantel. Mag ook buiten je beurt.'},
-  beard:  {title:'Beard Wombat',short:'Beard',color:'#C9A062',n:4,kind:'cat',text:COMBO},
-  melon:  {title:'Wombatmelon',short:'Melon',color:'#C9A062',n:4,kind:'cat',text:COMBO},
-  potato: {title:'Hairy Potato Wombat',short:'Potato',color:'#C9A062',n:4,kind:'cat',text:COMBO},
-  rainbow:{title:'Rainbow-Ralphing Wombat',short:'Rainbow',color:'#C9A062',n:4,kind:'cat',text:COMBO},
-  taco:   {title:'Tacowombat',short:'Taco',color:'#C9A062',n:4,kind:'cat',text:COMBO}
+  nope:   {title:'Nope',short:'Nope',color:'#C21FD6',n:5,kind:'nope',
+           text:'Houd elke actie tegen, behalve Exploderende Wombat en Ontmantel. Mag ook buiten je beurt.'},
+  beard:  {title:'Bebaarde Wombat',short:'Baard',color:'#18B9C9',n:4,kind:'cat',text:COMBO},
+  melon:  {title:'Wombatmeloen',short:'Meloen',color:'#E8318A',n:4,kind:'cat',text:COMBO},
+  potato: {title:'Harige Aardappelwombat',short:'Aardappel',color:'#D98A1C',n:4,kind:'cat',text:COMBO},
+  rainbow:{title:'Regenboogwombat',short:'Regenboog',color:'#8A4DFF',n:4,kind:'cat',text:COMBO},
+  taco:   {title:'Tacowombat',short:'Taco',color:'#F06414',n:4,kind:'cat',text:COMBO}
 };
 const ORDER=Object.keys(TYPES);
 const REMOVE_AT_START=['ek','defuse'];
@@ -1042,8 +1051,8 @@ function spotlight(ev){
     case 'cancel': s={cards:['nope'],title:by===v?'Je actie gaat niet door':`De actie van ${nm} gaat niet door`,sub:''}; bubble(by,'gaat niet door'); break;
     case 'give': if(!mineBy){ s={back:true,title:`${nm} geeft ${whom(ev.to)} een kaart`,sub:''}; bubble(by,`geeft ${whom(ev.to)} een kaart`); } break;
     case 'favor': if(ev.to!==v){ s={cards:['favor'],title:`${S.players[ev.to].name} kiest een kaart`,sub:`voor ${whom(by)}`}; bubble(ev.to,'kiest een kaart…'); } break;
-    case 'defuse': if(!mineBy) s={cards:['defuse'],title:`${nm} ontmantelt een Exploding Wombat`,sub:'en stopt hem zo terug in de stapel'};
-      else own={cards:['defuse'],title:'Je ontmantelt de Exploding Wombat',sub:'Kies zo waar je hem terugstopt'}; break;
+    case 'defuse': if(!mineBy) s={cards:['defuse'],title:`${nm} ontmantelt een Exploderende Wombat`,sub:'en stopt hem zo terug in de stapel'};
+      else own={cards:['defuse'],title:'Je ontmantelt de Exploderende Wombat',sub:'Kies zo waar je hem terugstopt'}; break;
     case 'place': if(!mineBy){ s={cards:['ek'],title:`${nm} legt de wombat terug`,sub:'Waar? Dat weet alleen '+nm}; bubble(by,'legt de wombat terug'); }
       else own={cards:['ek'],title:'Je stopt de wombat terug',sub:'Waar? Dat weet alleen jij'}; break;
     case 'boom': if(mineBy) own={cards:['ek'],title:'Je bent ontploft',sub:''}; else s={cards:['ek'],title:`${nm} is ontploft`,sub:''}; break;
@@ -1065,7 +1074,7 @@ function fx(ev){
     case 'nope': SND.nope(); if(ev.by===me()) ui.stamp=now; break;
     case 'draw': SND.draw(); break;
     case 'boom': case 'defuse': {
-      // eerst zie je de Exploding Wombat die getrokken is, daarna pas Pfoe! of BOEM!
+      // eerst zie je de Exploderende Wombat die getrokken is, daarna pas Pfoe! of BOEM!
       const saved=ev.k==='defuse';
       ui.boom={by:ev.by,at:now,step:now+ALERT_MS(),until:now+OVL_MS(ev.k),saved};
       SND.fuse(); clearTimeout(fxSndTimer);
@@ -1452,14 +1461,10 @@ const ALT={ek:'Geschrokken wombat die door een ontploffing de lucht in vliegt',d
   melon:'Wombat die uit een watermeloen springt',potato:'Wombat tussen de aardappels, vol aarde',rainbow:'Wombat die een regenboog uitspuugt',
   taco:'Wombat die op een vliegende taco zit'};
 function cardHTML(t,s,cnt){
-  const d=TY[t], n=d.title.length;
-  const ns=n<=10?27:n<=14?24:n<=17?22:n<=20?19:17.5, ts=d.text.length>100?12.5:14;
-  return `<div class="cbox" style="--s:${s}" role="img" aria-label="${esc(d.title)}: ${esc(d.text)}"><div class="card" style="--cc:${d.color};--ns:${ns}px;--ts:${ts}px">
-    <div class="ban"><span>${esc(d.title)}</span></div>
-    <div class="art"><img src="${SRC(`img/${t}.webp`)}" alt="" loading="lazy"></div>
-    <div class="txt">${esc(d.text)}</div>${cnt>1?`<span class="cnt" aria-label="${cnt} in je hand">${cnt}×</span>`:''}</div></div>`;
+  const d=TY[t];
+  return `<div class="cbox" style="--s:${s}" role="img" aria-label="${esc(d.title)}: ${esc(d.text)}"><div class="card"><img src="${SRC(`img/${t}-kaart.webp`)}" alt="" loading="lazy" draggable="false">${cnt>1?`<span class="cnt" aria-label="${cnt} in je hand">${cnt}×</span>`:''}</div></div>`;
 }
-const backHTML=s=>`<div class="cbox" style="--s:${s}"><div class="back"><div class="in"><img src="${SRC('icon-192.png')}" alt=""><b>Wombam!</b></div></div></div>`;
+const backHTML=s=>`<div class="cbox" style="--s:${s}"><div class="back"><img src="${SRC('img/back.webp')}" alt="" draggable="false"></div></div>`;
 function miniHTML(c,cnt){ const t=tOf(c), d=TY[t]; return `<div class="mc${cnt>1?' many':''}" style="--cc:${d.color}"><div class="im"><img src="${SRC(`img/${t}.webp`)}" alt=""></div><div class="sp"><b>${esc(d.short)}</b></div>${cnt>1?`<span class="mcnt">${cnt}</span>`:''}</div>`; }
 const typeMini=t=>miniHTML(t+'#0');
 function plHTML(i,opts){
@@ -1490,11 +1495,11 @@ function headerHTML(kind){
 }
 function rulesBody(){
   return `<div class="rules-body">
-    <p><b>Doel:</b> blijf als laatste over. Wie een Exploding Wombat trekt en geen Ontmantel heeft, ontploft en ligt uit het spel.</p>
+    <p><b>Doel:</b> blijf als laatste over. Wie een Exploderende Wombat trekt en geen Ontmantel heeft, ontploft en ligt uit het spel.</p>
     <ol>
-      <li>Iedereen begint met 7 kaarten en 1 Ontmantel. In de trekstapel zitten Exploding Wombats: één minder dan het aantal spelers.</li>
+      <li>Iedereen begint met 7 kaarten en 1 Ontmantel. In de trekstapel zitten Exploderende Wombats: één minder dan het aantal spelers.</li>
       <li>In je beurt speel je eerst zoveel kaarten als je wilt, of geen. Daarna trek je één kaart. Daarmee eindigt je beurt: na het trekken kun je niets meer spelen.</li>
-      <li>Trek je een Exploding Wombat, dan helpt alleen nog een Ontmantel; Nope, Sla Over en Aanval niet meer. Met een Ontmantel stop je de wombat in het geheim terug in de stapel, waar je maar wilt.</li>
+      <li>Trek je een Exploderende Wombat, dan helpt alleen nog een Ontmantel; Nope, Sla Over en Aanval niet meer. Met een Ontmantel stop je de wombat in het geheim terug in de stapel, waar je maar wilt.</li>
       <li><b>Aanval:</b> je trekt niet, en de volgende moet 2 beurten spelen. Ben je zelf aangevallen en speel je Aanval, dan krijgt de volgende jouw resterende beurten plus 2.</li>
       <li><b>Sla Over</b> beëindigt één beurt zonder te trekken. Na een Aanval is dat één van je twee beurten.</li>
       <li><b>Nope:</b> na elke actie heeft iedereen een paar seconden om Nope te spelen, ook als je niet aan de beurt bent. Een Nope kun je weer tegenhouden met een Nope.</li>
@@ -1548,7 +1553,7 @@ function setupHTML(){
   <section class="hero">
     <div class="heroart" aria-hidden="true">${cardHTML('defuse',0.36)}${cardHTML('ek',0.42)}${cardHTML('nope',0.36)}</div>
     <h2>Trek een kaart en hoop dat hij <em>niet ontploft.</em></h2>
-    <p class="lede">Een kaartspel voor 2 tot 5 spelers. Speel slim, ontwijk de Exploding Wombats en blijf als laatste over.</p>
+    <p class="lede">Een kaartspel voor 2 tot 5 spelers. Speel slim, ontwijk de Exploderende Wombats en blijf als laatste over.</p>
     <button class="btn soft tourbtn" data-act="tour">${ICON.help}Hoe werkt het? Uitleg in 1 minuut</button>
   </section>
   ${tabs}${body}`;
@@ -1635,14 +1640,14 @@ function handoffHTML(){
 
 /* ---------- rondleiding: de spelregels in tien stappen ---------- */
 const TOUR=[
-  {v:['ek'],t:'Blijf als laatste over',p:'In de stapel zitten <b>Exploding Wombats</b>. Trek je er een en kun je hem niet onschadelijk maken, dan ontplof je en lig je uit het spel. Wie als laatste overblijft, wint.'},
-  {v:['back','defuse'],t:'Zo begint het',p:'Iedereen krijgt 7 kaarten en 1 <b>Ontmantel</b>. In de trekstapel zitten Exploding Wombats: één minder dan er spelers zijn. Zo blijft er uiteindelijk precies één speler over.'},
+  {v:['ek'],t:'Blijf als laatste over',p:'In de stapel zitten <b>Exploderende Wombats</b>. Trek je er een en kun je hem niet onschadelijk maken, dan ontplof je en lig je uit het spel. Wie als laatste overblijft, wint.'},
+  {v:['back','defuse'],t:'Zo begint het',p:'Iedereen krijgt 7 kaarten en 1 <b>Ontmantel</b>. In de trekstapel zitten Exploderende Wombats: één minder dan er spelers zijn. Zo blijft er uiteindelijk precies één speler over.'},
   {v:['back'],t:'Jouw beurt',p:'Eerst speel je zoveel kaarten als je wilt, of helemaal geen. Daarna <b>trek je één kaart</b>, en dan is je beurt voorbij. Na het trekken kun je niets meer spelen: kijk en ontsnap dus <b>vóór</b> je trekt.'},
-  {v:['ek','>','defuse'],t:'Ontmantel',p:'Trek je een Exploding Wombat, dan is alleen een Ontmantel nog je redding. Die gebruikt het spel vanzelf. Daarna stop je de wombat <b>in het geheim</b> terug in de stapel, waar je maar wilt: bovenop voor de volgende speler, of diep weg.'},
+  {v:['ek','>','defuse'],t:'Ontmantel',p:'Trek je een Exploderende Wombat, dan is alleen een Ontmantel nog je redding. Die gebruikt het spel vanzelf. Daarna stop je de wombat <b>in het geheim</b> terug in de stapel, waar je maar wilt: bovenop voor de volgende speler, of diep weg.'},
   {v:['skip','attack'],t:'Ontsnappen',p:'<b>Sla Over:</b> je beurt is voorbij zonder dat je trekt. <b>Aanval:</b> je trekt ook niet, en de volgende moet 2 beurten achter elkaar spelen. Word je zelf aangevallen, dan kun je terugslaan: de volgende krijgt jouw beurten plus 2.'},
-  {v:['future','shuffle'],t:'Vooruitkijken',p:'Met <b>Voorspel de Toekomst</b> zie je in het geheim de bovenste 3 kaarten. Ligt er een Exploding Wombat bovenop? Ontsnap, of speel <b>Schud</b> om de stapel door elkaar te gooien.'},
+  {v:['future','shuffle'],t:'Vooruitkijken',p:'Met <b>Voorspel de Toekomst</b> zie je in het geheim de bovenste 3 kaarten. Ligt er een Exploderende Wombat bovenop? Ontsnap, of speel <b>Schud</b> om de stapel door elkaar te gooien.'},
   {v:['favor'],t:'Kateautje',p:'Kies een speler. Die moet je <b>één kaart geven</b>, maar mag zelf kiezen welke.'},
-  {v:['nope'],t:'Nope!',p:'Na elke actie loopt er <b>4 seconden</b> een balk. Zolang mag iedereen Nope spelen, ook buiten zijn beurt. De actie gaat dan niet door. Een Nope houd je weer tegen met een Nope. Alleen Exploding Wombat en Ontmantel kun je niet tegenhouden.'},
+  {v:['nope'],t:'Nope!',p:'Na elke actie loopt er <b>4 seconden</b> een balk. Zolang mag iedereen Nope spelen, ook buiten zijn beurt. De actie gaat dan niet door. Een Nope houd je weer tegen met een Nope. Alleen Exploderende Wombat en Ontmantel kun je niet tegenhouden.'},
   {v:['taco','taco','melon'],t:'Combinaties',p:'Combinatiekaarten doen op zichzelf niets. <b>Twee dezelfde:</b> steel blind een kaart van een andere speler. <b>Drie dezelfde:</b> noem een kaart; heeft de ander die, dan moet hij hem afgeven. Dit werkt met elke kaart, ook met actiekaarten.'},
   {v:'hand',t:'Zo speel je in de app',p:'Tik op een kaart in je hand om hem groot te zien en te spelen. <b>Gelijke kaarten liggen naast elkaar</b>, zodat je combinaties meteen ziet. Tik op de trekstapel om te trekken. Deze uitleg vind je altijd terug onder het vraagteken.'}
 ];
@@ -1703,7 +1708,7 @@ function sheetHTML(){
         if(n>=3) acts.push(`<button class="btn soft" data-act="pick-target" data-mode="triple">Speel 3 samen: eis een kaart op</button>`);
       }
       if(!acts.filter(x=>x&&x.startsWith('<button')).length){
-        hint=t==='defuse'?'Deze kaart gebruik je vanzelf als je een Exploding Wombat trekt.'
+        hint=t==='defuse'?'Deze kaart gebruik je vanzelf als je een Exploderende Wombat trekt.'
           :t==='nope'?'Nope speel je als iemand anders een actie speelt.'
           :TY[t].kind==='cat'?(tg?'Je hebt er nog een nodig om een paar te spelen.':'Er is niemand meer om van te stelen.')
           :t==='favor'?'Er is niemand met kaarten om je iets te geven.':'';
@@ -1719,7 +1724,7 @@ function sheetHTML(){
       <div class="where"><span>${i+1} van ${list.length}</span><div class="tdots" aria-hidden="true">${list.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')}</div></div>
       <button class="nav" data-act="flip" data-d="1" ${i<list.length-1?'':'disabled'} aria-label="Volgende kaart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
     </div>`:'';
-    return `<div class="ov" data-act="close-bg" role="dialog" aria-label="${esc(TY[t].title)}">${X}<div class="sheet" data-flip><div data-k="c${t}" class="${sl}">${cardHTML(t,1.16,n)}</div>${nav}${hint?`<p>${hint}</p>`:''}${acts.length?`<div class="acts">${acts.join('')}</div>`:''}</div></div>`;
+    return `<div class="ov" data-act="close-bg" role="dialog" aria-label="${esc(TY[t].title)}">${X}<div class="sheet" data-flip><div data-k="c${t}" class="${sl}">${cardHTML(t,1.16,n)}</div><p class="cardtxt">${esc(TY[t].text)}</p>${nav}${hint?`<p>${hint}</p>`:''}${acts.length?`<div class="acts">${acts.join('')}</div>`:''}</div></div>`;
   }
   if(sh.k==='target'){
     const title=sh.mode==='favor'?'Wie geeft jou een kaart?':sh.mode==='pair'?'Van wie steel je een kaart?':'Van wie eis je een kaart op?';
@@ -1737,7 +1742,7 @@ function sheetHTML(){
     const max=S.deck.length, pos=Math.min(ui.pos,max);
     const lbl=pos===0?'Bovenop':pos===max?'Onderop':`Als ${pos+1}e kaart`;
     const q=[[0,'Bovenop'],[1,'Als 2e'],[2,'Als 3e'],[max,'Onderop']].filter(([p],k,a)=>p<=max&&a.findIndex(x=>x[0]===p)===k);
-    return `<div class="ov" role="dialog" aria-label="Exploding Wombat terugleggen"><div class="sheet">${cardHTML('ek',0.5)}
+    return `<div class="ov" role="dialog" aria-label="Exploderende Wombat terugleggen"><div class="sheet">${cardHTML('ek',0.5)}
       <h2>Waar stop je hem terug?</h2><p>Alleen jij weet waar hij ligt. Er liggen ${max} kaarten in de stapel.</p>
       <div class="quick">${q.map(([p,l])=>`<button data-act="pos" data-p="${p}" aria-pressed="${pos===p}">${l}</button>`).join('')}<button data-act="pos" data-p="rnd">Ergens willekeurig</button></div>
       <div class="range"><output id="pos-out">${lbl}</output><input type="range" id="pos" data-ui="pos" min="0" max="${max}" value="${pos}" aria-label="Plek in de stapel"></div>
@@ -1750,9 +1755,9 @@ function fxHTML(){
   if(ui.boom&&now<ui.boom.until&&S){
     const p=S.players[ui.boom.by], mine=ui.boom.by===me(), B=ui.boom;
     h+=now<B.step
-      ?`<div class="boom alert" data-k="fxa${B.at}" data-act="fx-off" role="alert"><div class="wob">${cardHTML('ek',0.5)}</div><b>Oei!</b><span>${mine?'Je trekt een Exploding Wombat…':esc(p.name)+' trekt een Exploding Wombat…'}</span></div>`
+      ?`<div class="boom alert" data-k="fxa${B.at}" data-act="fx-off" role="alert"><div class="wob">${cardHTML('ek',0.5)}</div><b>Oei!</b><span>${mine?'Je trekt een Exploderende Wombat…':esc(p.name)+' trekt een Exploderende Wombat…'}</span></div>`
       :B.saved
-      ?`<div class="boom saved" data-k="fxs${B.at}" data-act="fx-off" role="alert">${cardHTML('defuse',0.5)}<b>Pfoe!</b><span>${mine?'Je ontmantelt de Exploding Wombat.':esc(p.name)+' ontmantelt een Exploding Wombat.'}</span></div>`
+      ?`<div class="boom saved" data-k="fxs${B.at}" data-act="fx-off" role="alert">${cardHTML('defuse',0.5)}<b>Pfoe!</b><span>${mine?'Je ontmantelt de Exploderende Wombat.':esc(p.name)+' ontmantelt een Exploderende Wombat.'}</span></div>`
       :`<div class="boom" data-k="fxb${B.at}" data-act="fx-off" role="alert">${cardHTML('ek',0.5)}<b>BOEM!</b><span>${mine?'Je ontploft!':esc(p.name)+' ontploft!'}</span></div>`;
   }
   if(now-ui.stamp<1300) h+=`<div class="stamp" aria-hidden="true">NOPE!</div>`;
@@ -1766,7 +1771,7 @@ function logText(e,v){
   const bs=e.b!=null?(B?'Jij':S.players[e.b].name):'';
   const ti=t=>TY[t].title;
   switch(e.k){
-    case 'start': return e.x===1?'Het spel begint. Er zit 1 Exploding Wombat in de stapel.':`Het spel begint. Er zitten ${e.x} Exploding Wombats in de stapel.`;
+    case 'start': return e.x===1?'Het spel begint. Er zit 1 Exploderende Wombat in de stapel.':`Het spel begint. Er zitten ${e.x} Exploderende Wombats in de stapel.`;
     case 'play': return `${a} speelt ${ti(e.x)}.`;
     case 'favor': return `${a} speelt Kateautje tegen ${b}.`;
     case 'pair': return `${a} speelt twee keer ${ti(e.x)} en wil een kaart stelen van ${b}.`;
@@ -1784,11 +1789,11 @@ function logText(e,v){
     case 'lacks': return `${a} ${A?'hebt':'heeft'} geen ${ti(e.x)}.`;
     case 'handover': return `${a} moet ${ti(e.x)} afgeven aan ${b}.`;
     case 'give': return `${a} geeft ${b} een kaart.`;
-    case 'defused': return `${a} trekt een Exploding Wombat, maar ontmantelt hem!`;
-    case 'boom': return `BOEM! ${a} trekt een Exploding Wombat en ontploft.`;
+    case 'defused': return `${a} trekt een Exploderende Wombat, maar ontmantelt hem!`;
+    case 'boom': return `BOEM! ${a} trekt een Exploderende Wombat en ontploft.`;
     case 'win': return `${a} wint!`;
     case 'draw': return `${a} trekt een kaart.`;
-    case 'place': return `${a} stopt de Exploding Wombat in het geheim terug in de stapel.`;
+    case 'place': return `${a} stopt de Exploderende Wombat in het geheim terug in de stapel.`;
   }
   return '';
 }
@@ -1799,7 +1804,7 @@ const whom=i=>i===me()?'jou':S.players[i].name;
 function evHTML(e,compact){
   if(!e) return '';
   const col=e.back?'#D63B1F':TY[e.cards[0]].color;
-  const vis=e.back?`<div class="mback"><img src="${SRC('icon-192.png')}" alt=""></div>`:e.cards.map(t=>miniHTML(t+'#0')).join('');
+  const vis=e.back?`<div class="mback"><img src="${SRC('img/back.webp')}" alt=""></div>`:e.cards.map(t=>miniHTML(t+'#0')).join('');
   return `<div data-k="ev${e.at||e.k||''}${compact?'c':''}" class="ev${compact?' compact':''} n${e.back?1:e.cards.length}" style="--cc:${col}" role="status"><div class="ev-vis">${vis}</div><div class="ev-t"><p class="t">${esc(e.title)}</p>${e.sub?`<p class="s">${esc(e.sub)}</p>`:''}</div></div>`;
 }
 
@@ -1808,7 +1813,7 @@ function statusMsg(){
   const n=E.needs(S); if(n==null) return '';
   const name=`<b>${esc(who(n,true))}</b>`, you=n===me();
   if(S.phase==='favor') return `${name} kiest een kaart voor <b>${esc(whom(S.favor.to))}</b>.`;
-  if(S.phase==='defuse') return `${name} stopt de Exploding Wombat terug in de stapel…`;
+  if(S.phase==='defuse') return `${name} stopt de Exploderende Wombat terug in de stapel…`;
   if(you) return S.turns>1?`${name} bent aan de beurt (nog ${S.turns} beurten).`:`${name} bent aan de beurt.`;
   return S.turns>1?`${name} is aan de beurt (nog ${S.turns} beurten).`:`${name} is aan de beurt.`;
 }
@@ -1871,7 +1876,7 @@ function dockHTML(scr){
   } else if(S.phase==='favor'){
     a+=`<p class="dock-msg" aria-live="polite"><b>${esc(S.players[S.favor.to].name)}</b> krijgt een kaart van je. Tik op de kaart die je wilt geven.</p>`;
   } else if(S.phase==='defuse'){
-    a+=`<p class="dock-msg">Stop de Exploding Wombat terug in de stapel.</p><button class="btn go" data-act="open-place">Terugleggen</button>`;
+    a+=`<p class="dock-msg">Stop de Exploderende Wombat terug in de stapel.</p><button class="btn go" data-act="open-place">Terugleggen</button>`;
   }
   ui.ping=false;
   return `<div class="dock-in">${a}</div>`;

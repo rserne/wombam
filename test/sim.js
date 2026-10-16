@@ -17,7 +17,7 @@ function check(S,where){
   assert(new Set(all).size===56,`${where}: dubbele kaart`);
   const eks=E.ekInDeck(S)+(S.limbo?1:0);
   const alive=E.alive(S).length;
-  if(S.phase!=='over') assert(eks===alive-1,`${where}: ${eks} Exploding Wombats in het spel bij ${alive} spelers`);
+  if(S.phase!=='over') assert(eks===alive-1,`${where}: ${eks} Exploderende Wombats in het spel bij ${alive} spelers`);
   S.players.forEach(p=>{ if(p.out) assert(p.hand.length===0,`${where}: uitgeschakelde speler heeft kaarten`); });
   assert(!S.players[S.cur].out||S.phase==='over',`${where}: uitgeschakelde speler is aan de beurt`);
   assert(S.turns>=1,`${where}: beurten ${S.turns}`);

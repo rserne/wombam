@@ -13,9 +13,10 @@ Gebruik:
 Wat waar vandaan komt:
     bron/icoon.png            -> icon-192.png, icon-512.png, icon-maskable-512.png,
                                  apple-touch-icon.png, favicon-32.png, favicon.ico
-    bron/kaarten/<soort>.jpg  -> img/<soort>.webp (kaarttekening)
+    bron/kaarten/<soort>.png  -> img/<soort>-kaart.webp (de hele kaart, met de naam erop)
+                                 img/<soort>.webp (de tekening zonder naam, voor de kaarten in je hand)
                                  img/face-<soort>.webp (portret voor de spelers)
-    bron/achterkant.svg       -> img/back.svg
+    bron/achterkant.png       -> img/back.webp
     bron/ster.svg             -> img/star.svg
     bron/wombat-blij.svg      -> img/blij.svg (uitslag als je wint: zwaait, springt en knippert)
     bron/wombat-sip.svg       -> img/sip.svg  (uitslag als je verliest: zucht, knippert en huilt)
@@ -30,25 +31,41 @@ ROOT = Path(__file__).resolve().parent
 BRON, IMG = ROOT / 'bron', ROOT / 'img'
 SOORTEN = ['ek', 'defuse', 'attack', 'skip', 'shuffle', 'future', 'favor', 'nope',
            'beard', 'melon', 'potato', 'rainbow', 'taco']
-# Uitsnede van het wombatkopje per tekening (in pixels van een tekening van 1536 x 1024)
+# Uitsnede van het wombatkopje per kaart (in pixels van een kaart van 1086 x 1448), voor de spelersportretten
 GEZICHTEN = {
-    'skip': (680, 30, 1080, 430), 'future': (640, 90, 1040, 490), 'beard': (620, 60, 1100, 540),
-    'melon': (620, 40, 1080, 500), 'nope': (555, 115, 985, 545), 'taco': (640, 20, 1040, 420),
+    'skip': (430, 470, 930, 970), 'future': (320, 440, 840, 960), 'beard': (320, 410, 880, 970),
+    'melon': (390, 410, 930, 950), 'nope': (320, 410, 840, 930), 'taco': (410, 330, 930, 850),
 }
+W, H, RADIUS = 1086, 1448, 92
+
+
+def _kaartvorm(pad):
+    """Lees een kaart in, maak alles buiten de afgeronde rand doorzichtig en breng hem op 1086 x 1448."""
+    from PIL import ImageChops, ImageDraw
+    im = Image.open(pad).convert('RGBA')
+    alfa = im.split()[3]
+    if alfa.getextrema()[0] < 128:               # al doorzichtig: snij bij tot de kaart zelf
+        im = im.crop(alfa.point(lambda v: 255 if v > 128 else 0).getbbox())
+    im = im.resize((W, H), Image.LANCZOS)
+    masker = Image.new('L', (W, H), 0)
+    ImageDraw.Draw(masker).rounded_rectangle((3, 3, W - 4, H - 4), RADIUS, fill=255)
+    im.putalpha(ImageChops.darker(im.split()[3], masker))
+    return im
 
 
 def kaarten():
+    """Per soort: de hele kaart, de tekening zonder naam voor je hand en voor zes soorten een portret.
+    De achterkant wordt img/back.webp."""
     IMG.mkdir(exist_ok=True)
     for s in SOORTEN:
-        im = Image.open(BRON / 'kaarten' / f'{s}.jpg').convert('RGB')
-        im.resize((720, 480), Image.LANCZOS).save(IMG / f'{s}.webp', quality=80, method=6)
+        im = _kaartvorm(BRON / 'kaarten' / f'{s}.png')
+        im.resize((600, 800), Image.LANCZOS).save(IMG / f'{s}-kaart.webp', quality=84, method=6)
+        im.convert('RGB').crop((60, 450, W - 60, H - 60)).resize((440, 450), Image.LANCZOS).save(IMG / f'{s}.webp', quality=80, method=6)
         if s in GEZICHTEN:
-            sx, sy = im.width / 1536, im.height / 1024
-            x0, y0, x1, y1 = GEZICHTEN[s]
-            face = im.crop((int(x0 * sx), int(y0 * sy), int(x1 * sx), int(y1 * sy)))
-            face.resize((192, 192), Image.LANCZOS).save(IMG / f'face-{s}.webp', quality=84, method=6)
-    shutil.copy(BRON / 'achterkant.svg', IMG / 'back.svg')
+            im.convert('RGB').crop(GEZICHTEN[s]).resize((192, 192), Image.LANCZOS).save(IMG / f'face-{s}.webp', quality=84, method=6)
+    _kaartvorm(BRON / 'achterkant.png').resize((600, 800), Image.LANCZOS).save(IMG / 'back.webp', quality=84, method=6)
     shutil.copy(BRON / 'ster.svg', IMG / 'star.svg')
+    (IMG / 'back.svg').unlink(missing_ok=True)
 
 
 def wombats():
@@ -109,7 +126,7 @@ def voorbeeld():
     for f in sorted(IMG.iterdir()):
         data[f'img/{f.name}'] = f'data:{soort[f.suffix]};base64,' + base64.b64encode(f.read_bytes()).decode()
     data['icon-192.png'] = 'data:image/png;base64,' + base64.b64encode((ROOT / 'icon-192.png').read_bytes()).decode()
-    for k in ('img/back.svg', 'img/star.svg'):
+    for k in ('img/star.svg',):
         html = html.replace(f'url({k})', f'url("{data[k]}")')
     html = re.sub(r'<link rel="(?:manifest|icon|apple-touch-icon)"[^>]*>\n', '', html)
     html = html.replace('<script>\n/* ENGINE-START */', '<script>window.WB_IMG=' + json.dumps(data) + ';</script>\n<script>\n/* ENGINE-START */', 1)
