@@ -28,7 +28,7 @@
 --accent:#FF3D7F; --accent-ink:#FFFFFF; --good:#00A6E0; --good-ink:#FFFFFF;
 --hl:#D81B5B; --rand:#111111; --schaduw:#111111; --vlak-rand:#111111; --vlak-schaduw:#111111;
 --shadow:3px 3px 0 #111; --shadow-lift:4px 4px 0 #111; --card-shadow:3px 4px 0 rgba(17,17,17,.85);
---dock:#FFFFFF; --logo:#111111; --dots:rgba(255,61,127,.22); --tafel:#00A6E0; --zacht:#FFFFFF; --zacht-ink:#111111;
+--dock:#FFFFFF; --ib:rgba(255,255,255,.75); --logo:#111111; --dots:rgba(255,61,127,.22); --tafel:#00A6E0; --zacht:#FFFFFF; --zacht-ink:#111111;
 --paper:#F6E3B8;
 --f-display:"Bangers","Impact","Arial Black",sans-serif;
 --f-card:"Lilita One","Arial Black",system-ui,sans-serif;
@@ -41,7 +41,7 @@
 --accent:#FF4F8B; --accent-ink:#FFFFFF; --good:#1BB5EE; --good-ink:#FFFFFF;
 --hl:#FF6FA0; --rand:#0A0614; --schaduw:#0A0614; --vlak-rand:#FFE14D; --vlak-schaduw:#FFE14D;
 --shadow:3px 3px 0 #0A0614; --shadow-lift:4px 4px 0 #0A0614; --card-shadow:3px 4px 0 rgba(0,0,0,.7);
---dock:#231842; --logo:#FFE14D; --dots:rgba(255,79,139,.20); --tafel:#0E7FB0; --zacht:#FFE14D; --zacht-ink:#111111;
+--dock:#231842; --ib:rgba(255,255,255,.09); --logo:#FFE14D; --dots:rgba(255,79,139,.20); --tafel:#0E7FB0; --zacht:#FFE14D; --zacht-ink:#111111;
 color-scheme:dark;
 }}
 :root[data-theme="dark"]{
@@ -50,7 +50,7 @@ color-scheme:dark;
 --accent:#FF4F8B; --accent-ink:#FFFFFF; --good:#1BB5EE; --good-ink:#FFFFFF;
 --hl:#FF6FA0; --rand:#0A0614; --schaduw:#0A0614; --vlak-rand:#FFE14D; --vlak-schaduw:#FFE14D;
 --shadow:3px 3px 0 #0A0614; --shadow-lift:4px 4px 0 #0A0614; --card-shadow:3px 4px 0 rgba(0,0,0,.7);
---dock:#231842; --logo:#FFE14D; --dots:rgba(255,79,139,.20); --tafel:#0E7FB0; --zacht:#FFE14D; --zacht-ink:#111111;
+--dock:#231842; --ib:rgba(255,255,255,.09); --logo:#FFE14D; --dots:rgba(255,79,139,.20); --tafel:#0E7FB0; --zacht:#FFE14D; --zacht-ink:#111111;
 color-scheme:dark;
 }
 html,body{background:var(--bg);color:var(--ink)}
@@ -446,7 +446,9 @@ body{background:radial-gradient(var(--dots) 1.6px,transparent 1.8px) 0 0/14px 14
 .btn{border-width:1.5px;box-shadow:2px 2px 0 var(--schaduw)}
 .btn.soft{border-width:1.5px;box-shadow:2px 2px 0 var(--schaduw)}
 .btn:active,.btn.soft:active{transform:translate(1px,1px);box-shadow:1px 1px 0 var(--schaduw)}
-.ib,.logo img,.label,.pl .nm{border-width:1.5px}
+.label,.pl .nm{border-width:1.5px}
+.ib{border:0;box-shadow:none;background:var(--ib)}
+.logo img{border:0;box-shadow:0 2px 6px rgba(0,0,0,.25)}
 .seat,.choice,.notice,.codebox,.lobby-seat,details.rules,.banner,.outmsg,.field,.seg,.chip,.timer{border-width:1.5px;box-shadow:2px 2px 0 var(--schaduw)}
 .prow,.ev,.table{border-width:1.5px;box-shadow:2px 2px 0 var(--vlak-schaduw)}
 .dock{border-top-width:1.5px}
