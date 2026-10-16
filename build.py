@@ -95,19 +95,37 @@ def _met_marge(im, marge):
     return vlak
 
 
+def _icoon_marge(sq, schaal):
+    """De tekening kleiner, onderaan in het midden, op een vlak in het oranje van de bovenrand.
+    De wombat loopt zo nog steeds door tot de onderrand; links, rechts en boven komt oranje marge."""
+    from PIL import ImageDraw, ImageFilter, ImageStat
+    w = sq.width
+    kleur = tuple(round(v) for v in ImageStat.Stat(sq.crop((0, 0, w, 6))).mean[:3])
+    vlak = Image.new('RGB', (w, w), kleur)
+    k = round(w * schaal)
+    klein = sq.resize((k, k), Image.LANCZOS)
+    rand = round(k * 0.07)
+    masker = Image.new('L', (k, k), 0)
+    ImageDraw.Draw(masker).rectangle((rand, rand, k - rand, k + rand), fill=255)   # onderrand blijft scherp
+    masker = masker.filter(ImageFilter.GaussianBlur(rand / 2))
+    vlak.paste(klein, ((w - k) // 2, w - k), masker)
+    return vlak
+
+
 def iconen():
-    """bron/icoon.png is een afgerond vierkant met doorzichtige hoeken. Telefoons ronden zelf af, dus we knippen
-    net binnen die hoeken een vol vierkant uit. Voor Android (maskable, soms rond afgesneden) komt er oranje marge omheen."""
+    """bron/icoon.png is een afgerond vierkant met doorzichtige hoeken. We knippen net binnen die hoeken een vol
+    vierkant uit en zetten dat kleiner op oranje, zodat er rondom marge is. Voor Android (soms rond afgesneden) iets kleiner."""
     im = Image.open(BRON / 'icoon.png').convert('RGBA')
     w = im.width
     m = round(w * 0.0625)                        # net binnen de afgeronde hoeken
     sq = im.crop((m, m, w - m, w - m)).convert('RGB')
-    sq.resize((512, 512), Image.LANCZOS).save(ROOT / 'icon-512.png', optimize=True)
-    sq.resize((192, 192), Image.LANCZOS).save(ROOT / 'icon-192.png', optimize=True)
-    sq.resize((180, 180), Image.LANCZOS).save(ROOT / 'apple-touch-icon.png', optimize=True)
-    sq.resize((32, 32), Image.LANCZOS).save(ROOT / 'favicon-32.png', optimize=True)
-    sq.resize((48, 48), Image.LANCZOS).save(ROOT / 'favicon.ico', sizes=[(16, 16), (32, 32), (48, 48)])
-    _met_marge(sq, 0.16).resize((512, 512), Image.LANCZOS).save(ROOT / 'icon-maskable-512.png', optimize=True)
+    ic = _icoon_marge(sq, 0.76)
+    ic.resize((512, 512), Image.LANCZOS).save(ROOT / 'icon-512.png', optimize=True)
+    ic.resize((192, 192), Image.LANCZOS).save(ROOT / 'icon-192.png', optimize=True)
+    ic.resize((180, 180), Image.LANCZOS).save(ROOT / 'apple-touch-icon.png', optimize=True)
+    ic.resize((32, 32), Image.LANCZOS).save(ROOT / 'favicon-32.png', optimize=True)
+    ic.resize((48, 48), Image.LANCZOS).save(ROOT / 'favicon.ico', sizes=[(16, 16), (32, 32), (48, 48)])
+    _icoon_marge(sq, 0.64).resize((512, 512), Image.LANCZOS).save(ROOT / 'icon-maskable-512.png', optimize=True)
 
 
 def service_worker(ophogen):
